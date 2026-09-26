@@ -72,8 +72,19 @@ jobs:
     # plugin-ci's submit-dependency-snapshot job holds contents: write (tap#664) and a caller
     # that does not grant it fails at startup; that job runs on push only, so on this
     # schedule/dispatch workflow it is skipped and boot-and-test keeps its own read-only grant.
+    #
+    # `security-events: write` is granted for a job THIS pin does not yet contain. Core's
+    # plugin-ci gained `upload-dependency-sarif`, whose permissions are `security-events: write`
+    # and nothing else, and the caller grant is validated against EVERY job of the called
+    # workflow before any job is created. So the first pin bump past that commit would fail at
+    # startup with zero jobs and no log unless the grant is already here. Granting it early is
+    # safe — a caller may grant more than the callee needs, never less — and it is what lets
+    # Renovate bump this pin at all. Unlike the other plugin repos this nightly is NOT converted
+    # to core's `plugin-nightly.yml`: that thin caller has no place for this workflow's dispatch
+    # inputs, 90-minute timeout, after-tests command, or its ledger and campaign jobs.
     permissions:
       contents: write
+      security-events: write
     uses: unified-systems-com/tap/.github/workflows/plugin-ci.yml@32148e00e6fc2f19bded21e883f5151b4bbd1342
     with:
       plugin_slug: gryphon_playground
