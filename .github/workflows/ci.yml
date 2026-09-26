@@ -41,6 +41,11 @@ jobs:
     # already carry exactly this grant; the top-level default stays `contents: read`.
     permissions:
       contents: write
+      # plugin-ci from tap#822 on uploads its dependency scan as SARIF, and GitHub checks every
+      # permission a called workflow's jobs declare before any job starts, so security-events:
+      # write is granted ahead of the pin moving there. contents: write stays while the pin
+      # predates tap#822 (submit-dependency-snapshot needs it); drop it once the pin is past #822.
+      security-events: write
     # Pinned by commit SHA, not by a name: `@main` lets whoever moves tap's default branch
     # decide which validation logic runs here, so a green run would not attest to the logic
     # this repo reviewed (tap#376's done-test; validate_plugin --repo enforces it). This SHA
