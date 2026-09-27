@@ -1,0 +1,223 @@
+# Fuzz campaign (unified-systems-com/tap#137).
+#
+# ONE OF TWO PIPELINES, and the split is the point (George, 2026-09-27: "we want to allow plugins
+# to choose their own adventure ... they can be two different pipelines"). `nightly.yml` is now the
+# standard thin caller to core's `plugin-nightly.yml`, exactly like the other 23 plugin repos, and
+# it answers the fleet's question: will the next core break this plugin. THIS file answers the
+# question only this repo asks, and nothing was deleted to get here.
+#
+# It runs the plugin against core `main` and then, only after that suite passes, the FUZZ CAMPAIGN:
+# a fresh seed band the executor has never seen, 400 graphs x 25 queries = 10,000 (the operator's
+# opening volume, 2026-09-11), every query classified against the model oracle with the TLP
+# metamorphic relation riding the same suite. A campaign over a broken plugin measures nothing,
+# which is why it runs after the tests and not beside them.
+#
+# The verdict: ONE distinct defect fingerprint reds this run, with every defect's seed, query and
+# detail — and how to reproduce one graph, classify, fix and lock in — in the job's step summary.
+# No summary at all is NOT OBSERVED and also red: a run that produced no verdict is not a pass.
+#
+# WHY THIS COULD NOT BE A THIN CALLER, stated because it is the whole reason the file exists.
+# `plugin-nightly.yml` takes `plugin_slug`, `latest_ref`, `plugin_subdir`,
+# `boot_and_test_timeout_minutes`, `issue_title` and `assignee`. It does NOT take `harness_ref`
+# (it hardcodes `main` for its own row) and it does NOT pass `after_tests_command` or
+# `after_tests_artifact_paths` through at all. The 90-minute ceiling WOULD have fitted — it is an
+# input — and an earlier draft of this argument wrongly claimed otherwise. Two gaps, not four.
+#
+# WHAT IT COSTS, so nobody discovers it later: this workflow calls `plugin-ci` itself, because a
+# campaign needs a booted stack, so this repo boots twice a night rather than once. That is
+# inherent to running two pipelines and was accepted deliberately, not overlooked.
+#
+# HOW WORD GETS OUT is DIFFERENT from the nightly's, and this is the split's one real loss. The
+# nightly's red files an owner issue through core's job. A campaign defect reds this run and is
+# visible to github_core, which collects every workflow run in the org (`github_actions_run`:
+# event, conclusion, age) and surfaces it on the double-tap landing page — but it pushes nothing.
+# There is deliberately no second reporter here: hand-rolling one is what the fleet just finished
+# deleting from 24 repositories (tap#843).
+#
+# THE LEDGER LANDS ON A BRANCH, never on main by a bot: each clean night appends one row to
+# `nightly/fuzz-ledger` (de-duplicated by band) and the step summary carries the compare link; a
+# human opens the PR from it whenever the rows are worth merging — proposed, never pushed, the rule
+# the org applies to pins. The seed band is derived from the calendar
+# (2_000_000 + days-since-2026-09-01 x 1000), so it never repeats, never collides with the gate's
+# pinned seed (1729) or the July band (1_000_000+), and never depends on whether last night's row
+# merged.
+#
+# A schedule is not evidence — GitHub may delay or skip scheduled runs — so the run itself is the
+# record, and the landing page's "no run in 26h" is the heartbeat.
+#
+# `workflow_dispatch` inputs are for a maintainer's one-off spin (they require write access to
+# dispatch); `harness_ref` points the core row at a branch or SHA.
+name: fuzz-campaign
+on:
+  schedule:
+    - cron: "51 11 * * *"   # its own slot, an hour after the thin nightly and clear of the 11:0x band
+  workflow_dispatch:
+    inputs:
+      harness_ref:
+        description: "Core ref for the `main` row — a one-off spin against a core branch (a ref, not a bare SHA). Default: main."
+        required: false
+        type: string
+        default: main
+      campaign_graphs:
+        description: "Graphs in tonight's band, x 25 queries each. Default 400 = 10,000 queries."
+        required: false
+        type: string
+        default: "400"
+
+permissions:
+  contents: read
+
+jobs:
+  main:
+    name: vs core main + fuzz campaign
+    # The harness is core `main`, whose web image runs as `USER nonroot`; the after-tests
+    # command writes into the `.:/app` bind mount, which only the runner's uid owns. This
+    # plugin-ci revision aligns the container uid with the runner (TAP_USER=<uid>:0,
+    # req-tap-serving-unprivileged).
+    #
+    # `security-events: write` is plugin-ci's `upload-dependency-sarif` job, whose permissions are
+    # that scope and nothing else. GitHub validates the caller's grant against EVERY job of the
+    # called workflow before creating any job, so a scope missing here fails the whole run at
+    # startup with zero jobs and no log — which is why it is declared even though that job's `if:`
+    # skips it on a schedule.
+    #
+    # `contents: write` is deliberately NOT granted, and that is a change. It used to be, for
+    # plugin-ci's `submit-dependency-snapshot` job (tap#664). At this pin plugin-ci states "No job
+    # here holds `contents: write`, and a caller should grant it to none of them" — so the grant was
+    # authority this workflow no longer needs. The one job here that genuinely writes is `ledger`,
+    # and it holds its own.
+    permissions:
+      contents: read
+      security-events: write
+    uses: unified-systems-com/tap/.github/workflows/plugin-ci.yml@57505751b27900e5d58fc0c2b40df32f18a2b980
+    with:
+      plugin_slug: gryphon_playground
+      harness_ref: ${{ inputs.harness_ref || 'main' }}
+      boot_and_test_timeout_minutes: 90
+      # Runs inside the booted web container after the in-package suite passes; it is
+      # sh (dash), not bash. The band start comes from the calendar, the provenance stamp
+      # names both commits (handed in by plugin-ci as TAP_CI_*_SHA), and the summary is
+      # kept for the verdict job. The graph count is a maintainer dispatch input.
+      after_tests_command: >-
+        mkdir -p /app/after-tests-out &&
+        export GRYPHON_FUZZ_CAMPAIGN_BASE=$((2000000 + ($(date -u +%s) - 1788220800) / 86400 * 1000)) &&
+        export GRYPHON_FUZZ_CAMPAIGN_SUMMARY_COPY=/app/after-tests-out/campaign-summary.json &&
+        export TAP_FUZZ_COMMIT="core@$(echo "$TAP_CI_HARNESS_SHA" | cut -c1-8)+plugin@$(echo "$TAP_CI_PLUGIN_SHA" | cut -c1-8)" &&
+        scripts/gryphon-fuzz-campaign ${{ inputs.campaign_graphs || '400' }} 25
+      # Confined by plugin-ci to this checkout and after-tests-out/ — never the harness
+      # tree at large.
+      after_tests_artifact_paths: |
+        _dev-plugins/gryphon_playground/tap_plugin/gryphon_playground/gridkin/fuzz-campaign-log.jsonl
+        after-tests-out/campaign-summary.json
+    secrets:
+      harness_pat: ${{ secrets.TAP_CORE_RO_PAT }}
+
+  # The ledger row lands on one persistent branch — only after a green main row, since a
+  # row from a run whose suite failed is a row about nothing. The only job here that
+  # uses a contents: write token (the `main` row's grant exists for plugin-ci's push-only
+  # snapshot job, which never runs on this workflow). No pull request is opened (org
+  # policy keeps that switch off, and a human opening it from the compare link is the
+  # intended shape).
+
+  ledger:
+    name: append the ledger row on the ledger branch
+    needs: [main]
+    if: needs.main.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      LEDGER: tap_plugin/gryphon_playground/gridkin/fuzz-campaign-log.jsonl
+      BRANCH: nightly/fuzz-ledger
+    outputs:
+      compare_url: ${{ steps.push.outputs.compare_url }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: after-tests
+          path: campaign
+      - name: Append tonight's row on the persistent ledger branch
+        id: push
+        run: |
+          set -euo pipefail
+          row="$(tail -n 1 "campaign/_dev-plugins/gryphon_playground/$LEDGER")"
+          [ -n "$row" ] || { echo "::error::no ledger row in the after-tests artifact"; exit 1; }
+          summary="$(python3 - <<'PY'
+          import json
+          s = json.load(open("campaign/after-tests-out/campaign-summary.json", encoding="utf-8"))
+          t = s["totals"]
+          print(
+              f"{s['n_queries']} queries over seeds {s['base_seed']}-{s['seed_end']}: "
+              f"agree {t.get('agree', 0)}, diverge {t.get('diverge', 0)}, rejected {t.get('rejected', 0)}, "
+              f"crashed {t.get('crashed', 0)}, unmodeled {t.get('unmodeled', 0)}; "
+              f"{s['distinct_defects']} distinct defect(s), oracle-asserted {s['asserted_fraction'] * 100:.1f}%"
+          )
+          PY
+          )"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+            git fetch -q origin "$BRANCH"
+            git checkout -q -B "$BRANCH" FETCH_HEAD
+          else
+            git checkout -q -B "$BRANCH" origin/main
+          fi
+          # De-duplicate by BAND, not by exact line: the band is calendar-derived, so a
+          # second dispatch on the same day re-runs the same seeds with a different
+          # commit stamp — a ledger measuring fresh bands must hold each band once.
+          base="$(python3 -c 'import json; print(json.load(open("campaign/after-tests-out/campaign-summary.json"))["base_seed"])')"
+          if grep -qF -- "\"base_seed\": $base," "$LEDGER"; then
+            echo "band starting at $base already on the ledger — nothing to append"
+          else
+            printf '%s\n' "$row" >> "$LEDGER"
+          fi
+          git add "$LEDGER"
+          if ! git diff --cached --quiet; then
+            git commit -q \
+              -m "chore(ledger): fuzz campaign $(date -u +%Y-%m-%d) — $summary" \
+              -m "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            git push -q "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/$BRANCH"
+          fi
+          compare="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/main...${BRANCH}?expand=1"
+          rows="$(git rev-list --count origin/main..HEAD)"
+          echo "compare_url=$compare" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Ledger"
+            echo
+            echo "$summary"
+            echo
+            echo "Row landed on \`$BRANCH\` ($rows unmerged night(s)). Open the PR when the rows are worth merging: $compare"
+            echo
+            echo "Every row is one campaign over a fresh calendar-derived band; the trend this exists for is distinct new defects per 100k queries, declining as the executor hardens, with the oracle-asserted fraction beside it so a falling rate cannot hide a generator that stopped exploring."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # The verdict. A defect reds the run; a missing summary is NOT OBSERVED and also red.
+  campaign:
+    name: fuzz campaign verdict
+    needs: [main, ledger]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        continue-on-error: true   # absent when the suite failed first; the script renders that as NOT OBSERVED
+        with:
+          name: after-tests
+          path: campaign
+      - name: Verdict (reds the run on a defect; writes the step summary)
+        env:
+          MAIN_RESULT: ${{ needs.main.result }}
+          LEDGER_URL: ${{ needs.ledger.outputs.compare_url }}
+        run: python3 .github/scripts/campaign_verdict.py campaign/after-tests-out/campaign-summary.json "$MAIN_RESULT" "$LEDGER_URL"
+
