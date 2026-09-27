@@ -85,7 +85,7 @@ jobs:
     permissions:
       contents: write
       security-events: write
-    uses: unified-systems-com/tap/.github/workflows/plugin-ci.yml@32148e00e6fc2f19bded21e883f5151b4bbd1342
+    uses: unified-systems-com/tap/.github/workflows/plugin-ci.yml@210409a20ad44e6f747f01bf6da9ccd2cbc04015
     with:
       plugin_slug: gryphon_playground
       harness_ref: ${{ inputs.harness_ref || 'main' }}
