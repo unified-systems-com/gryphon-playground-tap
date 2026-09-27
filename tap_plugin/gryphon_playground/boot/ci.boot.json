@@ -9,7 +9,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/tap-plugin-grid-fixtures",
-          "rev": "v0.3.1"
+          "rev": "v0.3.1",
+          "commit": "7f08d0780d7468590507df2a5562fe730d76e8c8"
         },
         "note": "The one declared dependency (tap-plugin.toml depends_on). Install-only: the neutral grid_fixtures__* node/edge vocabulary the corpus queries by string, migrated so the scenarios have real types. Public repo, so no `credential` (req-tap-plugin-arch-source-secret-5)."
       },
@@ -19,7 +20,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/tap-plugin-gryphon-playground",
-          "rev": "v0.3.3"
+          "rev": "v0.3.3",
+          "commit": "8fb4c0dcaeb619079c36d4cafce85863b40703a9"
         },
         "note": "Self, pinned like any app-of-apps record (req-boot-bootstrap-stage0-3) \u2014 the CONSUMER substitutes the checkout under test via tap.dev_workspace, so no CI directory layout is baked in here (req-boot-bootstrap-ci-record-4). Booting this record unflipped is a coherent stack: it runs the released tag."
       }
