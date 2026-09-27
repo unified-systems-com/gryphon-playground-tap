@@ -7,6 +7,6 @@ WHERE ("tap_entity"."deleted_at" IS NULL AND "<node-type-table>"."kind" = %s)
 -- statement 2 · stage: bare-type-scan
 SELECT <entity-spine-columns>
 FROM "tap_entity"
-WHERE "tap_entity"."id" IN (%s)
+WHERE ("tap_entity"."deleted_at" IS NULL AND "tap_entity"."id" IN (%s))
 ORDER BY "tap_entity"."created_at" DESC
 -- params: [UUID('019e4b02-f37b-72df-a3e5-baf99158bb0c')]

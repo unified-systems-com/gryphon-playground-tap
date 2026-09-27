@@ -1,35 +1,42 @@
 -- statement 1 · stage: advanced
-SELECT "tap_edge"."from_entity_id" AS "from_entity_id", "tap_edge"."to_entity_id" AS "to_entity_id", T4."to_entity_id" AS "to_entity__edges_out__to_entity_id", "tap_edge"."entity_id" AS "entity_id", T4."entity_id" AS "to_entity__edges_out__entity_id"
+SELECT "tap_edge"."from_entity_id" AS "from_entity_id", "tap_edge"."to_entity_id" AS "to_entity_id", T5."to_entity_id" AS "to_entity__edges_out__to_entity_id", "tap_edge"."entity_id" AS "entity_id", T5."entity_id" AS "to_entity__edges_out__entity_id"
 FROM "tap_edge"
 INNER JOIN "tap_entity" ON ("tap_edge"."entity_id" = "tap_entity"."id")
-INNER JOIN "tap_entity" T3 ON ("tap_edge"."to_entity_id" = T3."id")
-INNER JOIN "tap_edge" T4 ON (T3."id" = T4."from_entity_id")
-WHERE ("tap_entity"."deleted_at" IS NULL AND "tap_edge"."edge_type" = %s AND T4."edge_type" = %s AND "tap_edge"."from_entity_id" = %s)
+INNER JOIN "tap_entity" T3 ON ("tap_edge"."from_entity_id" = T3."id")
+INNER JOIN "tap_entity" T4 ON ("tap_edge"."to_entity_id" = T4."id")
+INNER JOIN "tap_edge" T5 ON (T4."id" = T5."from_entity_id")
+LEFT OUTER JOIN "tap_entity" T6 ON (T5."entity_id" = T6."id")
+LEFT OUTER JOIN "tap_entity" T7 ON (T5."to_entity_id" = T7."id")
+WHERE ("tap_entity"."deleted_at" IS NULL AND T3."deleted_at" IS NULL AND T4."deleted_at" IS NULL AND "tap_edge"."edge_type" = %s AND T5."edge_type" = %s AND T6."deleted_at" IS NULL AND T7."deleted_at" IS NULL AND "tap_edge"."from_entity_id" = %s)
 ORDER BY "tap_entity"."created_at" DESC
 -- params: ['PG_NESTS__grid_fixtures', 'PG_NESTS__grid_fixtures', UUID('019e4e07-9975-7501-8d81-0fd1935265b4')]
 -- statement 2 · stage: advanced
 SELECT <entity-spine-columns>
 FROM "tap_entity"
-WHERE "tap_entity"."id" IN (%s, %s, %s, %s)
+WHERE ("tap_entity"."deleted_at" IS NULL AND "tap_entity"."id" IN (%s, %s, %s, %s))
 ORDER BY "tap_entity"."created_at" DESC
 -- params: [UUID('019e4e07-9975-7501-8d81-0fd1935265b4'), UUID('019e4e07-9975-7501-8d81-0fd20676235e'), UUID('019e4e07-9975-7501-8d81-0fd4000cdc11'), UUID('019e4e07-9975-7501-8d81-0fd5ff1349c3')]
 -- statement 3 · stage: advanced
 SELECT "tap_edge"."id", "tap_edge"."entity_id", "tap_edge"."batch_id", "tap_edge"."flip_map", "tap_edge"."from_entity_id", "tap_edge"."to_entity_id", "tap_edge"."edge_type", "tap_edge"."properties", <entity-spine-columns>
 FROM "tap_edge"
 INNER JOIN "tap_entity" ON ("tap_edge"."entity_id" = "tap_entity"."id")
-WHERE ("tap_entity"."deleted_at" IS NULL AND "tap_edge"."entity_id" IN (%s, %s, %s))
+INNER JOIN "tap_entity" T3 ON ("tap_edge"."from_entity_id" = T3."id")
+INNER JOIN "tap_entity" T4 ON ("tap_edge"."to_entity_id" = T4."id")
+WHERE ("tap_entity"."deleted_at" IS NULL AND T3."deleted_at" IS NULL AND T4."deleted_at" IS NULL AND "tap_edge"."entity_id" IN (%s, %s, %s))
 ORDER BY "tap_entity"."created_at" DESC
 -- params: [UUID('019e4e07-9975-7501-8d81-0fd60cda42a3'), UUID('019e4e07-9975-7501-8d81-0fd8127168ca'), UUID('019e4e07-9975-7501-8d81-0fd930c004b7')]
 -- statement 4 · stage: advanced
 SELECT <entity-spine-columns>
 FROM "tap_entity"
-WHERE "tap_entity"."id" IN (%s, %s, %s, %s)
+WHERE ("tap_entity"."deleted_at" IS NULL AND "tap_entity"."id" IN (%s, %s, %s, %s))
 ORDER BY "tap_entity"."created_at" DESC
 -- params: [UUID('019e4e07-9975-7501-8d81-0fd1935265b4'), UUID('019e4e07-9975-7501-8d81-0fd20676235e'), UUID('019e4e07-9975-7501-8d81-0fd4000cdc11'), UUID('019e4e07-9975-7501-8d81-0fd5ff1349c3')]
 -- statement 5 · stage: advanced
 SELECT "tap_edge"."id", "tap_edge"."entity_id", "tap_edge"."batch_id", "tap_edge"."flip_map", "tap_edge"."from_entity_id", "tap_edge"."to_entity_id", "tap_edge"."edge_type", "tap_edge"."properties", <entity-spine-columns>
 FROM "tap_edge"
 INNER JOIN "tap_entity" ON ("tap_edge"."entity_id" = "tap_entity"."id")
-WHERE ("tap_entity"."deleted_at" IS NULL AND "tap_edge"."entity_id" IN (%s, %s, %s))
+INNER JOIN "tap_entity" T3 ON ("tap_edge"."from_entity_id" = T3."id")
+INNER JOIN "tap_entity" T4 ON ("tap_edge"."to_entity_id" = T4."id")
+WHERE ("tap_entity"."deleted_at" IS NULL AND T3."deleted_at" IS NULL AND T4."deleted_at" IS NULL AND "tap_edge"."entity_id" IN (%s, %s, %s))
 ORDER BY "tap_entity"."created_at" DESC
 -- params: [UUID('019e4e07-9975-7501-8d81-0fd60cda42a3'), UUID('019e4e07-9975-7501-8d81-0fd8127168ca'), UUID('019e4e07-9975-7501-8d81-0fd930c004b7')]
