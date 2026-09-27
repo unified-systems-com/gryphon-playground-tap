@@ -2,10 +2,14 @@
 SELECT "tap_edge"."from_entity_id" AS "_g_col_0", COUNT("tap_edge"."to_entity_id") AS "_g_agg_0"
 FROM "tap_edge"
 INNER JOIN "tap_entity" ON ("tap_edge"."entity_id" = "tap_entity"."id")
-WHERE ("tap_entity"."deleted_at" IS NULL AND "tap_edge"."edge_type" = %s AND NOT EXISTS(SELECT %s AS "a"
+INNER JOIN "tap_entity" T3 ON ("tap_edge"."from_entity_id" = T3."id")
+INNER JOIN "tap_entity" T4 ON ("tap_edge"."to_entity_id" = T4."id")
+WHERE ("tap_entity"."deleted_at" IS NULL AND T3."deleted_at" IS NULL AND T4."deleted_at" IS NULL AND "tap_edge"."edge_type" = %s AND NOT EXISTS(SELECT %s AS "a"
 FROM "tap_edge" U0
 INNER JOIN "tap_entity" U1 ON (U0."entity_id" = U1."id")
-WHERE (U1."deleted_at" IS NULL AND U0."edge_type" = %s AND U0."to_entity_id" = ("tap_edge"."to_entity_id"))
+INNER JOIN "tap_entity" U2 ON (U0."from_entity_id" = U2."id")
+INNER JOIN "tap_entity" U3 ON (U0."to_entity_id" = U3."id")
+WHERE (U1."deleted_at" IS NULL AND U2."deleted_at" IS NULL AND U3."deleted_at" IS NULL AND U0."edge_type" = %s AND U0."to_entity_id" = ("tap_edge"."to_entity_id"))
 LIMIT 1))
 GROUP BY 1
 ORDER BY 1 ASC
