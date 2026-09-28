@@ -1,5 +1,5 @@
 manifest_version = "0"
-plugin_version = "0.6.2"
+plugin_version = "0.6.2" # x-release-please-version
 slug = "gryphon_playground"
 name = "Gryphon Playground"
 description = "The Gridkin scenario corpus + harness for testing the Gryphon query language, built on the grid_fixtures node vocabulary."
@@ -28,14 +28,14 @@ requires_tap = ">=0.1.5"  # the floor the push/PR lane proves (tap#365; George 2
 [[boot.records]]
 name = "ci"
 description = "RESERVED NAME (req-boot-bootstrap-ci-record): the stack this plugin's own tests run in — depends_on closure + self, offline, credential-free. The consumer flips self to editable."
-sha256 = "18c7ff293c199e222157c0cc8cfcc13c4eb5ef9e941087bb748a33becbb7ae0c"
+sha256 = "8c431dff9c8961f058c1886e55c88870c73aa940f64a073ec31e28cc73608885"
 
 [[boot.records]]
 name = "playground"
 description = "Muck around: grid_fixtures vocab + Gridkin corpus, no workers, empty grid."
-sha256 = "896771822cc416511c66f1743bc1716af15151221ab63a3ee525dd73291026c7"
+sha256 = "2db59b41369cd3ce0bda013e99ea20984bd97274e47486788480a0796720275a"
 
 [[boot.records]]
 name = "soak"
 description = "Fuzz-campaign flavor: same install as playground; reserved for the differential-fuzz soak (driven by scripts/gryphon-fuzz-campaign today)."
-sha256 = "e43083498bdf8d0ba938b5d827329ae1bcf6ee85dbf39ade0bac0da9d8a04975"
+sha256 = "86d6f852b7a7a11935596d5bd2e29eb719ecaef6106ccc877fb8bdd9afe60e04"

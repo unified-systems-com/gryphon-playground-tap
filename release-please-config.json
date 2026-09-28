@@ -1,0 +1,33 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "python",
+  "include-component-in-tag": false,
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": true,
+  "packages": {
+    ".": {
+      "package-name": "tap-plugin-gryphon-playground",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "tap_plugin/gryphon_playground/tap-plugin.toml"
+        },
+        {
+          "type": "json",
+          "path": "tap_plugin/gryphon_playground/boot/ci.boot.json",
+          "jsonpath": "$.install.plugins[?(@.slug=='gryphon_playground')].source.rev"
+        },
+        {
+          "type": "json",
+          "path": "tap_plugin/gryphon_playground/boot/playground.boot.json",
+          "jsonpath": "$.install.plugins[?(@.slug=='gryphon_playground')].source.rev"
+        },
+        {
+          "type": "json",
+          "path": "tap_plugin/gryphon_playground/boot/soak.boot.json",
+          "jsonpath": "$.install.plugins[?(@.slug=='gryphon_playground')].source.rev"
+        }
+      ]
+    }
+  }
+}
