@@ -46,6 +46,6 @@ jobs:
     with:
       plugin_slug: gryphon_playground
       boot_and_test_timeout_minutes: 90
-      assignee: notgeorge   # the sole owner in .github/CODEOWNERS
+      assignee: notgeorge   # no CODEOWNERS in this repo — the org's maintainer login
     secrets:
       harness_pat: ${{ secrets.TAP_CORE_RO_PAT }}
