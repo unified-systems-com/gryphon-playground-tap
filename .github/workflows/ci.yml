@@ -1,4 +1,4 @@
-# CI for tap-plugin-gryphon-playground.
+# CI for gryphon-playground-tap.
 #
 # A thin caller. All the logic lives in the reusable workflow in the core TAP repo
 # (`.github/workflows/plugin-ci.yml`, req-plugin-extdev-repo-ci) so every plugin repo —
