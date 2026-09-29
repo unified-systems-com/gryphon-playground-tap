@@ -50,7 +50,7 @@ jobs:
     # decide which validation logic runs here, so a green run would not attest to the logic
     # this repo reviewed (tap#376's done-test; validate_plugin --repo enforces it). This SHA
     # is tap main as of 2026-09-25, which is the logic this lane was already running.
-    uses: unified-systems-com/tap/.github/workflows/plugin-ci.yml@57505751b27900e5d58fc0c2b40df32f18a2b980
+    uses: unified-systems-com/tap/.github/workflows/plugin-ci.yml@baf481c0572c0210c8a89e9c86e552616c7e886c
     with:
       plugin_slug: gryphon_playground
       # Pinned deliberately. `main` means "whatever core is today", which turns an
