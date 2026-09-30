@@ -8,9 +8,8 @@
 # Since 2026-08-08 core is PUBLIC on the unified-systems-com org, which removed both of
 # the old silent-failure prerequisites: public reusable workflows are callable from any
 # repo (no Actions access_level sharing needed), and core can be checked out with no
-# credential at all. `harness_pat` is still plumbed through for now — retiring
-# TAP_CORE_RO_PAT is a separate, deliberate step — but a missing/expired value is no
-# longer fatal to checkout.
+# credential at all. The old `harness_pat` / TAP_CORE_RO_PAT plumbing was retired on
+# 2026-09-29: the secret was never set anywhere, so the read-only token was always used.
 #
 # `boot_profile` is intentionally omitted: the Django-free conformance job (structure +
 # requires_tap compatibility floor) is the gate here. A plugin that needs a real stack
@@ -48,5 +47,3 @@ jobs:
       # Pinned deliberately. `main` means "whatever core is today", which turns an
       # unrelated core change into a surprise red here. Bump this on purpose.
       harness_ref: main
-    secrets:
-      harness_pat: ${{ secrets.TAP_CORE_RO_PAT }}

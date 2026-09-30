@@ -109,8 +109,6 @@ jobs:
       after_tests_artifact_paths: |
         _dev-plugins/gryphon_playground/tap_plugin/gryphon_playground/gridkin/fuzz-campaign-log.jsonl
         after-tests-out/campaign-summary.json
-    secrets:
-      harness_pat: ${{ secrets.TAP_CORE_RO_PAT }}
 
   # The ledger row lands on one persistent branch — only after a green main row, since a
   # row from a run whose suite failed is a row about nothing. The only job here that
