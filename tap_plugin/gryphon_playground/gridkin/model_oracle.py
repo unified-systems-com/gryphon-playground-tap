@@ -38,6 +38,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from datetime import date, datetime, timezone
 from typing import Any
 
 from tap_grid.gryphon.ast_nodes import (
@@ -722,7 +723,7 @@ def evaluate(ast: GryphonAST, graph: Graph, inputs: dict[str, Any]) -> OracleRes
     """Evaluate a parsed Gryphon query over the in-memory graph.
 
     Raises `OracleUnmodeled` for any shape not yet modeled (bounded multi-hop,
-    display lane, array field paths, aggregates other than COUNT, and any
+    display lane, array field paths, aggregates other than COUNT / MIN / MAX, and any
     OPTIONAL MATCH beyond the v0 single-hop scoreboard scope).
     """
     if ast.optional_match_clauses:
@@ -889,6 +890,14 @@ def _evaluate_optional_match(ast: GryphonAST, graph: Graph, inputs: dict[str, An
     mandatory.sort(key=lambda rec: rec.entity_id)  # deterministic identity tiebreak
 
     rows: list[dict[str, Any]] = []
+    if not any(isinstance(it, ReturnItem) for it in items):
+        # No group key: the whole mandatory scan is ONE group, so the answer is one row
+        # holding the total of the per-anchor counts (req-grid-gryphon-count-4).
+        total = sum(
+            _count_optional_edges(rec, optional_pattern, optional_edge, w, join_leaves, live_by_id, graph, inputs)
+            for rec in mandatory
+        )
+        return OracleResult(kind="rows", rows=({it.alias: total for it in items if isinstance(it, AggregateReturnItem)},))
     for rec in mandatory:
         count = _count_optional_edges(rec, optional_pattern, optional_edge, w, join_leaves, live_by_id, graph, inputs)
         row: dict[str, Any] = {}
@@ -1110,32 +1119,75 @@ def _project_field(item: ReturnItem, match: PatternMatch) -> Any:
     return _resolve_field(item.path, record)
 
 
+_ISO_INSTANT = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})$")
+_ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
+def _extremum(function: str, values: list[Any]) -> Any:
+    """MIN / MAX of one group's values, computed from the plain Python values.
+
+    NULLs are ignored; an empty or all-NULL group is NULL (req-grid-gryphon-minmax-5).
+    The oracle has no schema, so it types a group by its VALUES: numbers compare
+    numerically; strings that are all ISO-8601 instants WITH an offset compare as
+    instants and come back as a UTC `...Z` string; strings that are all
+    `YYYY-MM-DD` compare as dates. Anything else (booleans, plain strings, objects,
+    lists, mixed types, an offset-less timestamp whose zone the oracle would have to
+    guess) is not modeled -- the engine rejects most of those by schema, and a
+    rejection is asserted by an `expected_error` scenario, not by this oracle.
+    """
+    present = [v for v in values if v is not None]
+    if not present:
+        return None
+    pick = min if function == "min" else max
+    if all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in present):
+        return pick(present)
+    if all(isinstance(v, str) for v in present):
+        if all(_ISO_INSTANT.match(v) for v in present):
+            instants = [datetime.fromisoformat(v).astimezone(timezone.utc) for v in present]
+            return pick(instants).isoformat().replace("+00:00", "Z")
+        if all(_ISO_DATE.match(v) for v in present):
+            return pick(date.fromisoformat(v) for v in present).isoformat()
+    raise OracleUnmodeled(f"{function.upper()} over values of no comparable type")
+
+
 def _build_aggregate_rows(items: tuple[Any, ...], matches: list[PatternMatch]) -> list[dict[str, Any]]:
     group_items = [it for it in items if isinstance(it, ReturnItem)]
     agg_items = [it for it in items if isinstance(it, AggregateReturnItem)]
     for agg in agg_items:
-        if agg.aggregate.function != "count":
+        if agg.aggregate.function not in ("count", "min", "max"):
             raise OracleUnmodeled(f"aggregate function {agg.aggregate.function!r}")
 
     groups: dict[tuple, dict[str, Any]] = {}
-    counts: dict[tuple, int] = {}
+    members: dict[tuple, list[PatternMatch]] = {}
     order: list[tuple] = []
     for m in matches:
         key_parts = tuple(_project_field(gi, m) for gi in group_items)
         if key_parts not in groups:
             groups[key_parts] = {_return_key(gi): _project_field(gi, m) for gi in group_items}
-            counts[key_parts] = 0
+            members[key_parts] = []
             order.append(key_parts)
-        # COUNT counts bindings in the group (inner-join chain: the counted
-        # variable is always bound). Zero-degree groups never appear — they
-        # produce no binding — which matches the executor's INNER JOIN.
-        counts[key_parts] += 1
+        members[key_parts].append(m)
+    if not group_items and not order:
+        # No group key: the whole (here empty) match set is the one group, so the
+        # answer is a single row -- COUNT 0, MIN / MAX NULL -- not an absent one.
+        groups[()] = {}
+        members[()] = []
+        order.append(())
+
+    def aggregate(agg: AggregateReturnItem, group: list[PatternMatch]) -> Any:
+        if agg.aggregate.function == "count":
+            # COUNT counts bindings in the group (inner-join chain: the counted
+            # variable is always bound). Zero-degree groups never appear -- they
+            # produce no binding -- which matches the executor's INNER JOIN.
+            return len(group)
+        argument = ReturnItem(path=agg.aggregate.argument, alias=None)
+        return _extremum(agg.aggregate.function, [_project_field(argument, m) for m in group])
 
     rows: list[dict[str, Any]] = []
     for key in order:
         row = dict(groups[key])
         for agg in agg_items:
-            row[agg.alias] = counts[key]
+            row[agg.alias] = aggregate(agg, members[key])
         rows.append(row)
     return rows
 

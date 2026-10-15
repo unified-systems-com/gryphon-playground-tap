@@ -1,0 +1,457 @@
+{
+  "feature": "MIN and MAX aggregates with implicit GROUP BY over a vulnerability-finding-alert traversal",
+  "background": {
+    "grift_fixture": "fixtures/minmax.grift.json"
+  },
+  "scenarios": [
+    {
+      "name": "earliest alert time, highest score and alert count per vulnerability over a finding-to-alert traversal",
+      "tags": [
+        "aggregation",
+        "minmax",
+        "multi-hop",
+        "count",
+        "order-by",
+        "date-time"
+      ],
+      "covers": [
+        "req-grid-gryphon-minmax",
+        "req-grid-gryphon-minmax-1",
+        "req-grid-gryphon-minmax-3",
+        "req-grid-gryphon-minmax-5",
+        "req-grid-gryphon-minmax-6",
+        "req-grid-gryphon-count-3",
+        "req-grid-gryphon-multihop"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (min and max over grouped values, null-skipping, all-null group)",
+      "layer": "lite",
+      "query": "MATCH (v:grid_fixtures__hub)-[:PG_LINKS__grid_fixtures]->(f:grid_fixtures__leaf)-[:PG_LINKS__grid_fixtures]->(a:grid_fixtures__node) RETURN v.name AS vulnerability, MIN(a.data.observed_at) AS first_seen, MAX(a.data.severity_score) AS highest, COUNT(a) AS alerts ORDER BY vulnerability",
+      "expected_envelope": "expected/minmax__earliest_per_vulnerability.expected.json",
+      "expected_sql_snapshot": "expected/minmax__earliest_per_vulnerability.sql.txt"
+    },
+    {
+      "name": "latest report time per scanner (MAX of a date-time, nulls ignored)",
+      "tags": [
+        "aggregation",
+        "minmax",
+        "date-time",
+        "nulls"
+      ],
+      "covers": [
+        "req-grid-gryphon-minmax",
+        "req-grid-gryphon-minmax-1",
+        "req-grid-gryphon-minmax-3",
+        "req-grid-gryphon-minmax-5",
+        "req-grid-gryphon-minmax-6"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (min and max over grouped values, null-skipping, all-null group)",
+      "layer": "lite",
+      "query": "MATCH (f:grid_fixtures__leaf)-[:PG_LINKS__grid_fixtures]->(a:grid_fixtures__node) RETURN a.data.kind AS scanner, MAX(a.data.observed_at) AS last_report ORDER BY scanner",
+      "expected_envelope": "expected/minmax__last_report_per_scanner.expected.json",
+      "expected_sql_snapshot": "expected/minmax__last_report_per_scanner.sql.txt"
+    },
+    {
+      "name": "MIN and MAX per finding: a date-time is compared as an instant, nulls are ignored, an all-null group is null",
+      "tags": [
+        "aggregation",
+        "minmax",
+        "date-time",
+        "nulls",
+        "integer",
+        "instant-not-text"
+      ],
+      "covers": [
+        "req-grid-gryphon-minmax",
+        "req-grid-gryphon-minmax-3",
+        "req-grid-gryphon-minmax-4",
+        "req-grid-gryphon-minmax-5",
+        "req-grid-gryphon-minmax-6"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (min and max over grouped values, null-skipping, all-null group)",
+      "layer": "lite",
+      "query": "MATCH (f:grid_fixtures__leaf)-[:PG_LINKS__grid_fixtures]->(a:grid_fixtures__node) RETURN f.name AS finding, MIN(a.data.observed_at) AS first_seen, MAX(a.data.observed_at) AS last_seen, MIN(a.data.severity_score) AS lowest, MAX(a.data.severity_score) AS highest ORDER BY finding",
+      "expected_envelope": "expected/minmax__per_finding_instant_and_null.expected.json",
+      "expected_sql_snapshot": "expected/minmax__per_finding_instant_and_null.sql.txt"
+    },
+    {
+      "name": "an all-aggregate RETURN is one group and yields one row",
+      "tags": [
+        "aggregation",
+        "minmax",
+        "all-aggregate",
+        "count"
+      ],
+      "covers": [
+        "req-grid-gryphon-minmax",
+        "req-grid-gryphon-minmax-3",
+        "req-grid-gryphon-minmax-6"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (min and max over grouped values, null-skipping, all-null group)",
+      "layer": "lite",
+      "query": "MATCH (f:grid_fixtures__leaf)-[:PG_LINKS__grid_fixtures]->(a:grid_fixtures__node) RETURN MIN(a.data.severity_score) AS lowest, MAX(a.data.severity_score) AS highest, MIN(a.data.observed_at) AS first_seen, MAX(a.data.observed_at) AS last_seen, COUNT(a) AS alerts",
+      "expected_envelope": "expected/minmax__all_aggregate_one_row.expected.json",
+      "expected_sql_snapshot": "expected/minmax__all_aggregate_one_row.sql.txt"
+    },
+    {
+      "name": "COUNT alone with no group key is one row, not one row per match",
+      "tags": [
+        "aggregation",
+        "minmax",
+        "all-aggregate",
+        "count",
+        "regression"
+      ],
+      "covers": [
+        "req-grid-gryphon-count",
+        "req-grid-gryphon-minmax-3"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (min and max over grouped values, null-skipping, all-null group)",
+      "layer": "lite",
+      "query": "MATCH (f:grid_fixtures__leaf)-[:PG_LINKS__grid_fixtures]->(a:grid_fixtures__node) RETURN COUNT(a) AS alerts",
+      "expected_envelope": "expected/minmax__count_alone_one_row.expected.json",
+      "expected_sql_snapshot": "expected/minmax__count_alone_one_row.sql.txt"
+    },
+    {
+      "name": "COUNT alone over an OPTIONAL MATCH is one total row, not one row per anchor",
+      "tags": [
+        "aggregation",
+        "all-aggregate",
+        "count",
+        "optional-match",
+        "regression"
+      ],
+      "covers": [
+        "req-grid-gryphon-count",
+        "req-grid-gryphon-count-4",
+        "req-grid-gryphon-optional-match",
+        "req-grid-gryphon-minmax-3"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (an aggregate with no grouping key over an optional match)",
+      "layer": "lite",
+      "query": "MATCH (f:grid_fixtures__leaf) OPTIONAL MATCH (f)-[:PG_LINKS__grid_fixtures]->(a:grid_fixtures__node) RETURN COUNT(a) AS alerts",
+      "expected_envelope": "expected/minmax__optional_count_alone.expected.json",
+      "expected_sql_snapshot": "expected/minmax__optional_count_alone.sql.txt"
+    },
+    {
+      "name": "an all-aggregate RETURN over no matches is one row: COUNT 0, MAX null",
+      "tags": [
+        "aggregation",
+        "minmax",
+        "all-aggregate",
+        "empty-result",
+        "nulls"
+      ],
+      "covers": [
+        "req-grid-gryphon-minmax",
+        "req-grid-gryphon-minmax-3",
+        "req-grid-gryphon-minmax-5"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (aggregation over an empty match set)",
+      "layer": "lite",
+      "query": "MATCH (f:grid_fixtures__leaf)-[:PG_LINKS__grid_fixtures]->(a:grid_fixtures__node) WHERE a.data.severity_score > 100 RETURN MAX(a.data.severity_score) AS highest, COUNT(a) AS alerts",
+      "expected_envelope": "expected/minmax__all_aggregate_no_match.expected.json",
+      "expected_sql_snapshot": "expected/minmax__all_aggregate_no_match.sql.txt"
+    },
+    {
+      "name": "WHERE filters the rows before MAX sees them",
+      "tags": [
+        "aggregation",
+        "minmax",
+        "where"
+      ],
+      "covers": [
+        "req-grid-gryphon-minmax",
+        "req-grid-gryphon-minmax-3",
+        "req-grid-traversal-lang-filters"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (min and max over grouped values, null-skipping, all-null group)",
+      "layer": "lite",
+      "query": "MATCH (f:grid_fixtures__leaf)-[:PG_LINKS__grid_fixtures]->(a:grid_fixtures__node) WHERE a.data.kind = \"scanner-x\" RETURN f.name AS finding, MAX(a.data.severity_score) AS highest ORDER BY finding",
+      "expected_envelope": "expected/minmax__where_then_aggregate.expected.json",
+      "expected_sql_snapshot": "expected/minmax__where_then_aggregate.sql.txt"
+    },
+    {
+      "name": "ORDER BY an aggregate column with LIMIT",
+      "tags": [
+        "aggregation",
+        "minmax",
+        "order-by",
+        "limit"
+      ],
+      "covers": [
+        "req-grid-gryphon-minmax",
+        "req-grid-gryphon-minmax-3",
+        "req-grid-gryphon-order-by"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (min and max over grouped values, null-skipping, all-null group)",
+      "layer": "lite",
+      "query": "MATCH (v:grid_fixtures__hub)-[:PG_LINKS__grid_fixtures]->(f:grid_fixtures__leaf)-[:PG_LINKS__grid_fixtures]->(a:grid_fixtures__node) RETURN v.name AS vulnerability, MAX(a.data.severity_score) AS highest ORDER BY highest DESC LIMIT 2",
+      "expected_envelope": "expected/minmax__order_by_aggregate_limit.expected.json",
+      "expected_sql_snapshot": "expected/minmax__order_by_aggregate_limit.sql.txt"
+    },
+    {
+      "name": "MIN of a bare variable is rejected, naming the field-path form",
+      "tags": [
+        "aggregation",
+        "minmax",
+        "rejection",
+        "bare-variable"
+      ],
+      "covers": [
+        "req-grid-gryphon-minmax",
+        "req-grid-gryphon-minmax-2"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (rejected aggregate argument shapes)",
+      "layer": "lite",
+      "query": "MATCH (f:grid_fixtures__leaf)-[:PG_LINKS__grid_fixtures]->(a:grid_fixtures__node) RETURN MIN(a) AS x",
+      "expected_error": {
+        "type": "SearchExecutionError",
+        "message_contains": "MIN(a.data.<field>)"
+      }
+    },
+    {
+      "name": "MAX of a bare variable is rejected, naming the field-path form",
+      "tags": [
+        "aggregation",
+        "minmax",
+        "rejection",
+        "bare-variable"
+      ],
+      "covers": [
+        "req-grid-gryphon-minmax",
+        "req-grid-gryphon-minmax-2"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (rejected aggregate argument shapes)",
+      "layer": "lite",
+      "query": "MATCH (f:grid_fixtures__leaf)-[:PG_LINKS__grid_fixtures]->(a:grid_fixtures__node) RETURN MAX(a) AS x",
+      "expected_error": {
+        "type": "SearchExecutionError",
+        "message_contains": "MAX(a.data.<field>)"
+      }
+    },
+    {
+      "name": "MIN of a plain string field is rejected",
+      "tags": [
+        "aggregation",
+        "minmax",
+        "rejection",
+        "string"
+      ],
+      "covers": [
+        "req-grid-gryphon-minmax",
+        "req-grid-gryphon-minmax-4"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (rejected aggregate argument shapes)",
+      "layer": "lite",
+      "query": "MATCH (f:grid_fixtures__leaf)-[:PG_LINKS__grid_fixtures]->(a:grid_fixtures__node) RETURN MIN(a.data.kind) AS x",
+      "expected_error": {
+        "type": "SearchExecutionError",
+        "message_contains": "declared {string}"
+      }
+    },
+    {
+      "name": "MAX of a boolean field is rejected",
+      "tags": [
+        "aggregation",
+        "minmax",
+        "rejection",
+        "boolean"
+      ],
+      "covers": [
+        "req-grid-gryphon-minmax",
+        "req-grid-gryphon-minmax-4"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (rejected aggregate argument shapes)",
+      "layer": "lite",
+      "query": "MATCH (f:grid_fixtures__leaf)-[:PG_LINKS__grid_fixtures]->(a:grid_fixtures__node) RETURN MAX(a.data.is_open) AS x",
+      "expected_error": {
+        "type": "SearchExecutionError",
+        "message_contains": "declared {boolean}"
+      }
+    },
+    {
+      "name": "MIN of an object field is rejected",
+      "tags": [
+        "aggregation",
+        "minmax",
+        "rejection",
+        "object"
+      ],
+      "covers": [
+        "req-grid-gryphon-minmax",
+        "req-grid-gryphon-minmax-4"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (rejected aggregate argument shapes)",
+      "layer": "lite",
+      "query": "MATCH (f:grid_fixtures__leaf)-[:PG_LINKS__grid_fixtures]->(a:grid_fixtures__node) RETURN MIN(a.data.tags) AS x",
+      "expected_error": {
+        "type": "SearchExecutionError",
+        "message_contains": "declared {object}"
+      }
+    },
+    {
+      "name": "MAX of a key inside an opaque object is rejected",
+      "tags": [
+        "aggregation",
+        "minmax",
+        "rejection",
+        "opaque",
+        "json"
+      ],
+      "covers": [
+        "req-grid-gryphon-minmax",
+        "req-grid-gryphon-minmax-4",
+        "req-grid-gryphon-minmax-7"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (rejected aggregate argument shapes)",
+      "layer": "lite",
+      "query": "MATCH (f:grid_fixtures__leaf)-[:PG_LINKS__grid_fixtures]->(a:grid_fixtures__node) RETURN MAX(a.data.tags.score) AS x",
+      "expected_error": {
+        "type": "SearchExecutionError",
+        "message_contains": "no declared scalar type"
+      }
+    },
+    {
+      "name": "MIN of a spine field is rejected",
+      "tags": [
+        "aggregation",
+        "minmax",
+        "rejection",
+        "spine"
+      ],
+      "covers": [
+        "req-grid-gryphon-minmax",
+        "req-grid-gryphon-minmax-4"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (rejected aggregate argument shapes)",
+      "layer": "lite",
+      "query": "MATCH (f:grid_fixtures__leaf)-[:PG_LINKS__grid_fixtures]->(a:grid_fixtures__node) RETURN MIN(a.name) AS x",
+      "expected_error": {
+        "type": "SearchExecutionError",
+        "message_contains": "typed data-lane field"
+      }
+    },
+    {
+      "name": "MIN over an OPTIONAL MATCH is rejected, never ignored",
+      "tags": [
+        "aggregation",
+        "minmax",
+        "rejection",
+        "optional-match"
+      ],
+      "covers": [
+        "req-grid-gryphon-minmax",
+        "req-grid-gryphon-minmax-8",
+        "req-grid-gryphon-optional-match"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (rejected aggregate argument shapes)",
+      "layer": "lite",
+      "query": "MATCH (f:grid_fixtures__leaf) OPTIONAL MATCH (f)-[:PG_LINKS__grid_fixtures]->(a:grid_fixtures__node) RETURN f.entity_id AS id, MIN(a.data.severity_score) AS x",
+      "expected_error": {
+        "type": "SearchExecutionError",
+        "message_contains": "supports only COUNT"
+      }
+    },
+    {
+      "name": "MAX over an OPTIONAL MATCH is rejected, never ignored",
+      "tags": [
+        "aggregation",
+        "minmax",
+        "rejection",
+        "optional-match"
+      ],
+      "covers": [
+        "req-grid-gryphon-minmax",
+        "req-grid-gryphon-minmax-8",
+        "req-grid-gryphon-optional-match"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (rejected aggregate argument shapes)",
+      "layer": "lite",
+      "query": "MATCH (f:grid_fixtures__leaf) OPTIONAL MATCH (f)-[:PG_LINKS__grid_fixtures]->(a:grid_fixtures__node) RETURN f.entity_id AS id, MAX(a.data.observed_at) AS x",
+      "expected_error": {
+        "type": "SearchExecutionError",
+        "message_contains": "supports only COUNT"
+      }
+    },
+    {
+      "name": "SUM is still rejected",
+      "tags": [
+        "aggregation",
+        "minmax",
+        "rejection",
+        "sum"
+      ],
+      "covers": [
+        "req-grid-gryphon-minmax",
+        "req-grid-gryphon-minmax-9",
+        "req-grid-gryphon-count-5"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (rejected aggregate argument shapes)",
+      "layer": "lite",
+      "query": "MATCH (f:grid_fixtures__leaf)-[:PG_LINKS__grid_fixtures]->(a:grid_fixtures__node) RETURN SUM(a.data.severity_score) AS x",
+      "expected_error": {
+        "type": "SearchExecutionError"
+      }
+    },
+    {
+      "name": "AVG is still rejected",
+      "tags": [
+        "aggregation",
+        "minmax",
+        "rejection",
+        "avg"
+      ],
+      "covers": [
+        "req-grid-gryphon-minmax",
+        "req-grid-gryphon-minmax-9",
+        "req-grid-gryphon-count-5"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (rejected aggregate argument shapes)",
+      "layer": "lite",
+      "query": "MATCH (f:grid_fixtures__leaf)-[:PG_LINKS__grid_fixtures]->(a:grid_fixtures__node) RETURN AVG(a.data.severity_score) AS x",
+      "expected_error": {
+        "type": "SearchExecutionError"
+      }
+    },
+    {
+      "name": "COUNT(*) is still rejected",
+      "tags": [
+        "aggregation",
+        "minmax",
+        "rejection",
+        "count-star"
+      ],
+      "covers": [
+        "req-grid-gryphon-minmax",
+        "req-grid-gryphon-minmax-9",
+        "req-grid-gryphon-count-5"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (rejected aggregate argument shapes)",
+      "layer": "lite",
+      "query": "MATCH (f:grid_fixtures__leaf)-[:PG_LINKS__grid_fixtures]->(a:grid_fixtures__node) RETURN COUNT(*) AS x",
+      "expected_error": {
+        "type": "SearchExecutionError"
+      }
+    },
+    {
+      "name": "COUNT(DISTINCT) is still rejected",
+      "tags": [
+        "aggregation",
+        "minmax",
+        "rejection",
+        "count-distinct"
+      ],
+      "covers": [
+        "req-grid-gryphon-minmax",
+        "req-grid-gryphon-minmax-9",
+        "req-grid-gryphon-count-5"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (rejected aggregate argument shapes)",
+      "layer": "lite",
+      "query": "MATCH (f:grid_fixtures__leaf)-[:PG_LINKS__grid_fixtures]->(a:grid_fixtures__node) RETURN COUNT(DISTINCT a) AS x",
+      "expected_error": {
+        "type": "SearchExecutionError"
+      }
+    }
+  ]
+}

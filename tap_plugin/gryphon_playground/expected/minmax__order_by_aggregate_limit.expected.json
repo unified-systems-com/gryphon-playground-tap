@@ -1,0 +1,17 @@
+{
+  "nodes": [],
+  "edges": [],
+  "rows": [
+    {
+      "vulnerability": "CVE-2026-0001",
+      "highest": 9
+    },
+    {
+      "vulnerability": "CVE-2026-0003",
+      "highest": 8
+    }
+  ],
+  "warnings": {
+    "multi_hop_no_anchor": "Multi-hop MATCH has no WHERE anchor; this may scan the full graph. Add a WHERE predicate or a LIMIT for better performance."
+  }
+}

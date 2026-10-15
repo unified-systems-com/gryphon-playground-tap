@@ -509,7 +509,16 @@ def _gen_chain(rng: random.Random, vals: _Values) -> str:
         # counting the grouping key itself is a different question, so fall
         # through to the envelope form rather than generate it here.
         anchor, counted = node_vars[0], node_vars[-1]
-        return pattern + f" RETURN {anchor}.entity_id AS aid, COUNT({counted}) AS c"
+        # req-grid-gryphon-minmax: MIN / MAX over a typed data-lane field of the far
+        # node (an integer or a nullable date-time), beside COUNT under one implicit
+        # GROUP BY, or with no group key at all (the all-aggregate one-row shape).
+        shape = rng.choices(("count", "minmax", "all"), weights=(3, 2, 1))[0]
+        if shape == "count":
+            return pattern + f" RETURN {anchor}.entity_id AS aid, COUNT({counted}) AS c"
+        extremum = f"{rng.choice(('MIN', 'MAX'))}({counted}.data.{rng.choice(('severity_score', 'observed_at'))}) AS m"
+        if shape == "minmax":
+            return pattern + f" RETURN {anchor}.entity_id AS aid, {extremum}, COUNT({counted}) AS c"
+        return pattern + f" RETURN {extremum}, COUNT({counted}) AS c"
     return pattern  # envelope (RETURN omitted)
 
 

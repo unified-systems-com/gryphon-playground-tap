@@ -1,0 +1,18 @@
+{
+  "nodes": [],
+  "edges": [],
+  "rows": [
+    {
+      "finding": "Finding 1",
+      "highest": 5
+    },
+    {
+      "finding": "Finding 2",
+      "highest": 7
+    },
+    {
+      "finding": "Finding 4",
+      "highest": 8
+    }
+  ]
+}

@@ -163,8 +163,8 @@
       ],
       "excluded": [
         {
-          "intent": "non-COUNT aggregates (min/max/sum/avg/collect/percentile/stdev)",
-          "reason": "Gryphon's only aggregate is COUNT"
+          "intent": "aggregates other than COUNT, MIN and MAX (sum/avg/collect/percentile/stdev)",
+          "reason": "Gryphon's aggregates are COUNT, MIN and MAX"
         },
         {
           "intent": "COUNT DISTINCT / collect(DISTINCT ...)",

@@ -1,0 +1,517 @@
+{
+  "metadata": {
+    "grift_version": "0"
+  },
+  "_reserved": {},
+  "batches": [
+    {
+      "batch_entity": {
+        "entity_id": "019e8a00-0000-7000-8000-000000000026",
+        "entity_type": "batch",
+        "name": "Gridkin fixture — minmax",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "name": "Gridkin fixture — minmax",
+        "description": "Vulnerability -> finding -> alert stand-ins (hub -> leaf -> node over PG_LINKS) built for req-grid-gryphon-minmax. Alerts carry an integer severity_score, a nullable date-time observed_at and a scanner in kind. Alert 1 is written with a +02:00 offset (07:30Z) so its text sorts AFTER Alert 2's 08:00Z although it is the earlier instant: only a typed comparison gets Finding 1 right. Finding 2 mixes an observed and an unobserved alert; Finding 3, and so Vulnerability 2, is all unobserved (NULL).",
+        "source": "plugin:gryphon_playground"
+      },
+      "nodes": [
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000001",
+            "entity_type": "grid_fixtures__hub",
+            "name": "CVE-2026-0001",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:00:00Z",
+            "updated_at": "2026-03-01T00:00:00Z"
+          },
+          "node": {
+            "name": "CVE-2026-0001",
+            "description": "Vulnerability stand-in.",
+            "kind": "",
+            "severity_score": 0,
+            "is_open": false,
+            "observed_at": null,
+            "tags": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000002",
+            "entity_type": "grid_fixtures__hub",
+            "name": "CVE-2026-0002",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:00:00Z",
+            "updated_at": "2026-03-01T00:00:00Z"
+          },
+          "node": {
+            "name": "CVE-2026-0002",
+            "description": "Vulnerability stand-in.",
+            "kind": "",
+            "severity_score": 0,
+            "is_open": false,
+            "observed_at": null,
+            "tags": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000003",
+            "entity_type": "grid_fixtures__hub",
+            "name": "CVE-2026-0003",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:00:00Z",
+            "updated_at": "2026-03-01T00:00:00Z"
+          },
+          "node": {
+            "name": "CVE-2026-0003",
+            "description": "Vulnerability stand-in.",
+            "kind": "",
+            "severity_score": 0,
+            "is_open": false,
+            "observed_at": null,
+            "tags": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000004",
+            "entity_type": "grid_fixtures__leaf",
+            "name": "Finding 1",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:00:00Z",
+            "updated_at": "2026-03-01T00:00:00Z"
+          },
+          "node": {
+            "name": "Finding 1",
+            "description": "Finding stand-in.",
+            "kind": "",
+            "severity_score": 0,
+            "is_open": false,
+            "observed_at": null,
+            "tags": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000005",
+            "entity_type": "grid_fixtures__leaf",
+            "name": "Finding 2",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:00:00Z",
+            "updated_at": "2026-03-01T00:00:00Z"
+          },
+          "node": {
+            "name": "Finding 2",
+            "description": "Finding stand-in.",
+            "kind": "",
+            "severity_score": 0,
+            "is_open": false,
+            "observed_at": null,
+            "tags": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000006",
+            "entity_type": "grid_fixtures__leaf",
+            "name": "Finding 3",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:00:00Z",
+            "updated_at": "2026-03-01T00:00:00Z"
+          },
+          "node": {
+            "name": "Finding 3",
+            "description": "Finding stand-in.",
+            "kind": "",
+            "severity_score": 0,
+            "is_open": false,
+            "observed_at": null,
+            "tags": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000007",
+            "entity_type": "grid_fixtures__leaf",
+            "name": "Finding 4",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:00:00Z",
+            "updated_at": "2026-03-01T00:00:00Z"
+          },
+          "node": {
+            "name": "Finding 4",
+            "description": "Finding stand-in.",
+            "kind": "",
+            "severity_score": 0,
+            "is_open": false,
+            "observed_at": null,
+            "tags": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000008",
+            "entity_type": "grid_fixtures__node",
+            "name": "Alert 1",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:00:00Z",
+            "updated_at": "2026-03-01T00:00:00Z"
+          },
+          "node": {
+            "name": "Alert 1",
+            "description": "Alert stand-in.",
+            "kind": "scanner-x",
+            "severity_score": 5,
+            "is_open": false,
+            "observed_at": "2026-03-01T09:30:00+02:00",
+            "tags": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000009",
+            "entity_type": "grid_fixtures__node",
+            "name": "Alert 2",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:00:00Z",
+            "updated_at": "2026-03-01T00:00:00Z"
+          },
+          "node": {
+            "name": "Alert 2",
+            "description": "Alert stand-in.",
+            "kind": "scanner-y",
+            "severity_score": 9,
+            "is_open": false,
+            "observed_at": "2026-03-01T08:00:00Z",
+            "tags": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000010",
+            "entity_type": "grid_fixtures__node",
+            "name": "Alert 3",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:00:00Z",
+            "updated_at": "2026-03-01T00:00:00Z"
+          },
+          "node": {
+            "name": "Alert 3",
+            "description": "Alert stand-in.",
+            "kind": "scanner-x",
+            "severity_score": 7,
+            "is_open": false,
+            "observed_at": "2026-03-05T00:00:00Z",
+            "tags": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000011",
+            "entity_type": "grid_fixtures__node",
+            "name": "Alert 4",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:00:00Z",
+            "updated_at": "2026-03-01T00:00:00Z"
+          },
+          "node": {
+            "name": "Alert 4",
+            "description": "Alert stand-in.",
+            "kind": "scanner-y",
+            "severity_score": 3,
+            "is_open": false,
+            "observed_at": null,
+            "tags": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000012",
+            "entity_type": "grid_fixtures__node",
+            "name": "Alert 5",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:00:00Z",
+            "updated_at": "2026-03-01T00:00:00Z"
+          },
+          "node": {
+            "name": "Alert 5",
+            "description": "Alert stand-in.",
+            "kind": "scanner-y",
+            "severity_score": 4,
+            "is_open": false,
+            "observed_at": null,
+            "tags": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000013",
+            "entity_type": "grid_fixtures__node",
+            "name": "Alert 6",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:00:00Z",
+            "updated_at": "2026-03-01T00:00:00Z"
+          },
+          "node": {
+            "name": "Alert 6",
+            "description": "Alert stand-in.",
+            "kind": "scanner-x",
+            "severity_score": 8,
+            "is_open": false,
+            "observed_at": "2026-03-10T12:00:00Z",
+            "tags": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000014",
+            "entity_type": "grid_fixtures__node",
+            "name": "Alert 7",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:00:00Z",
+            "updated_at": "2026-03-01T00:00:00Z"
+          },
+          "node": {
+            "name": "Alert 7",
+            "description": "Alert stand-in.",
+            "kind": "scanner-x",
+            "severity_score": 6,
+            "is_open": false,
+            "observed_at": null,
+            "tags": {}
+          }
+        }
+      ],
+      "edges": [
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000015",
+            "entity_type": "edge",
+            "name": "vA PG_LINKS f1",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:01:00Z",
+            "updated_at": "2026-03-01T00:01:00Z"
+          },
+          "edge": {
+            "from_entity_id": "019e8a00-0000-7000-8000-000000000001",
+            "to_entity_id": "019e8a00-0000-7000-8000-000000000004",
+            "edge_type": "PG_LINKS__grid_fixtures",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000016",
+            "entity_type": "edge",
+            "name": "vA PG_LINKS f2",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:01:00Z",
+            "updated_at": "2026-03-01T00:01:00Z"
+          },
+          "edge": {
+            "from_entity_id": "019e8a00-0000-7000-8000-000000000001",
+            "to_entity_id": "019e8a00-0000-7000-8000-000000000005",
+            "edge_type": "PG_LINKS__grid_fixtures",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000017",
+            "entity_type": "edge",
+            "name": "vB PG_LINKS f3",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:01:00Z",
+            "updated_at": "2026-03-01T00:01:00Z"
+          },
+          "edge": {
+            "from_entity_id": "019e8a00-0000-7000-8000-000000000002",
+            "to_entity_id": "019e8a00-0000-7000-8000-000000000006",
+            "edge_type": "PG_LINKS__grid_fixtures",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000018",
+            "entity_type": "edge",
+            "name": "vC PG_LINKS f4",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:01:00Z",
+            "updated_at": "2026-03-01T00:01:00Z"
+          },
+          "edge": {
+            "from_entity_id": "019e8a00-0000-7000-8000-000000000003",
+            "to_entity_id": "019e8a00-0000-7000-8000-000000000007",
+            "edge_type": "PG_LINKS__grid_fixtures",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000019",
+            "entity_type": "edge",
+            "name": "f1 PG_LINKS a1",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:01:00Z",
+            "updated_at": "2026-03-01T00:01:00Z"
+          },
+          "edge": {
+            "from_entity_id": "019e8a00-0000-7000-8000-000000000004",
+            "to_entity_id": "019e8a00-0000-7000-8000-000000000008",
+            "edge_type": "PG_LINKS__grid_fixtures",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000020",
+            "entity_type": "edge",
+            "name": "f1 PG_LINKS a2",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:01:00Z",
+            "updated_at": "2026-03-01T00:01:00Z"
+          },
+          "edge": {
+            "from_entity_id": "019e8a00-0000-7000-8000-000000000004",
+            "to_entity_id": "019e8a00-0000-7000-8000-000000000009",
+            "edge_type": "PG_LINKS__grid_fixtures",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000021",
+            "entity_type": "edge",
+            "name": "f2 PG_LINKS a3",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:01:00Z",
+            "updated_at": "2026-03-01T00:01:00Z"
+          },
+          "edge": {
+            "from_entity_id": "019e8a00-0000-7000-8000-000000000005",
+            "to_entity_id": "019e8a00-0000-7000-8000-000000000010",
+            "edge_type": "PG_LINKS__grid_fixtures",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000022",
+            "entity_type": "edge",
+            "name": "f2 PG_LINKS a7",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:01:00Z",
+            "updated_at": "2026-03-01T00:01:00Z"
+          },
+          "edge": {
+            "from_entity_id": "019e8a00-0000-7000-8000-000000000005",
+            "to_entity_id": "019e8a00-0000-7000-8000-000000000014",
+            "edge_type": "PG_LINKS__grid_fixtures",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000023",
+            "entity_type": "edge",
+            "name": "f3 PG_LINKS a4",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:01:00Z",
+            "updated_at": "2026-03-01T00:01:00Z"
+          },
+          "edge": {
+            "from_entity_id": "019e8a00-0000-7000-8000-000000000006",
+            "to_entity_id": "019e8a00-0000-7000-8000-000000000011",
+            "edge_type": "PG_LINKS__grid_fixtures",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000024",
+            "entity_type": "edge",
+            "name": "f3 PG_LINKS a5",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:01:00Z",
+            "updated_at": "2026-03-01T00:01:00Z"
+          },
+          "edge": {
+            "from_entity_id": "019e8a00-0000-7000-8000-000000000006",
+            "to_entity_id": "019e8a00-0000-7000-8000-000000000012",
+            "edge_type": "PG_LINKS__grid_fixtures",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "019e8a00-0000-7000-8000-000000000025",
+            "entity_type": "edge",
+            "name": "f4 PG_LINKS a6",
+            "dimensions": {
+              "tap.playground": "gridkin"
+            },
+            "created_at": "2026-03-01T00:01:00Z",
+            "updated_at": "2026-03-01T00:01:00Z"
+          },
+          "edge": {
+            "from_entity_id": "019e8a00-0000-7000-8000-000000000007",
+            "to_entity_id": "019e8a00-0000-7000-8000-000000000013",
+            "edge_type": "PG_LINKS__grid_fixtures",
+            "properties": {}
+          }
+        }
+      ]
+    }
+  ]
+}
