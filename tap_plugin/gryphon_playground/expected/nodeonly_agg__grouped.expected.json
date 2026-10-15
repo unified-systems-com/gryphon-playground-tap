@@ -1,0 +1,18 @@
+{
+  "nodes": [],
+  "edges": [],
+  "rows": [
+    {
+      "scanner": "scanner-x",
+      "alerts": 4,
+      "highest": 8,
+      "first_seen": "2026-03-01T07:30:00Z"
+    },
+    {
+      "scanner": "scanner-y",
+      "alerts": 3,
+      "highest": 9,
+      "first_seen": "2026-03-01T08:00:00Z"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+-- statement 1 · stage: type-scan
+SELECT "grid_fixtures__node"."kind" AS "_ts_col_0", COUNT("grid_fixtures__node"."id") AS "_ts_agg_1", MAX("grid_fixtures__node"."severity_score") AS "_ts_agg_2", MIN("grid_fixtures__node"."observed_at") AS "_ts_agg_3"
+FROM "grid_fixtures__node"
+INNER JOIN "tap_entity" ON ("grid_fixtures__node"."entity_id" = "tap_entity"."id")
+WHERE "tap_entity"."deleted_at" IS NULL
+GROUP BY 1
+ORDER BY 1 ASC

@@ -1,0 +1,10 @@
+{
+  "nodes": [],
+  "edges": [],
+  "rows": [
+    {
+      "scanner": "scanner-x",
+      "alerts": 4
+    }
+  ]
+}

@@ -1,0 +1,282 @@
+{
+  "feature": "COUNT, MIN and MAX aggregates over a labelled node-only scan",
+  "background": {
+    "grift_fixture": "fixtures/minmax.grift.json"
+  },
+  "scenarios": [
+    {
+      "name": "COUNT over a node-only scan is one row",
+      "tags": [
+        "aggregation",
+        "node-only",
+        "count"
+      ],
+      "covers": [
+        "req-grid-gryphon-nodeonly-agg",
+        "req-grid-gryphon-nodeonly-agg-1",
+        "req-grid-gryphon-nodeonly-agg-3"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (aggregates over a single-label scan: count, min, max, grouping, empty input)",
+      "layer": "lite",
+      "query": "MATCH (a:grid_fixtures__node) RETURN COUNT(a) AS alerts",
+      "expected_envelope": "expected/nodeonly_agg__count.expected.json",
+      "expected_sql_snapshot": "expected/nodeonly_agg__count.sql.txt"
+    },
+    {
+      "name": "MIN, MAX and COUNT together over a node-only scan are one row",
+      "tags": [
+        "aggregation",
+        "node-only",
+        "all-aggregate",
+        "date-time"
+      ],
+      "covers": [
+        "req-grid-gryphon-nodeonly-agg",
+        "req-grid-gryphon-nodeonly-agg-2",
+        "req-grid-gryphon-nodeonly-agg-3",
+        "req-grid-gryphon-minmax-5"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (aggregates over a single-label scan: count, min, max, grouping, empty input)",
+      "layer": "lite",
+      "query": "MATCH (a:grid_fixtures__node) RETURN MIN(a.data.severity_score) AS lowest, MAX(a.data.severity_score) AS highest, MIN(a.data.observed_at) AS first_seen, MAX(a.data.observed_at) AS last_seen, COUNT(a) AS alerts",
+      "expected_envelope": "expected/nodeonly_agg__all_aggregate.expected.json",
+      "expected_sql_snapshot": "expected/nodeonly_agg__all_aggregate.sql.txt"
+    },
+    {
+      "name": "grouped node-only aggregation: one row per scanner",
+      "tags": [
+        "aggregation",
+        "node-only",
+        "group-by",
+        "order-by"
+      ],
+      "covers": [
+        "req-grid-gryphon-nodeonly-agg",
+        "req-grid-gryphon-nodeonly-agg-4",
+        "req-grid-gryphon-order-by"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (aggregates over a single-label scan: count, min, max, grouping, empty input)",
+      "layer": "lite",
+      "query": "MATCH (a:grid_fixtures__node) RETURN a.data.kind AS scanner, COUNT(a) AS alerts, MAX(a.data.severity_score) AS highest, MIN(a.data.observed_at) AS first_seen ORDER BY scanner",
+      "expected_envelope": "expected/nodeonly_agg__grouped.expected.json",
+      "expected_sql_snapshot": "expected/nodeonly_agg__grouped.sql.txt"
+    },
+    {
+      "name": "ORDER BY an aggregate with LIMIT over a node-only scan",
+      "tags": [
+        "aggregation",
+        "node-only",
+        "group-by",
+        "order-by",
+        "limit"
+      ],
+      "covers": [
+        "req-grid-gryphon-nodeonly-agg",
+        "req-grid-gryphon-nodeonly-agg-4"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (aggregates over a single-label scan: count, min, max, grouping, empty input)",
+      "layer": "lite",
+      "query": "MATCH (a:grid_fixtures__node) RETURN a.data.kind AS scanner, COUNT(a) AS alerts ORDER BY alerts DESC LIMIT 1",
+      "expected_envelope": "expected/nodeonly_agg__grouped_top.expected.json",
+      "expected_sql_snapshot": "expected/nodeonly_agg__grouped_top.sql.txt"
+    },
+    {
+      "name": "WHERE narrows the scan before the aggregate",
+      "tags": [
+        "aggregation",
+        "node-only",
+        "where"
+      ],
+      "covers": [
+        "req-grid-gryphon-nodeonly-agg",
+        "req-grid-gryphon-nodeonly-agg-1",
+        "req-grid-gryphon-nodeonly-agg-2",
+        "req-grid-traversal-lang-filters"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (aggregates over a single-label scan: count, min, max, grouping, empty input)",
+      "layer": "lite",
+      "query": "MATCH (a:grid_fixtures__node) WHERE a.data.kind = \"scanner-y\" RETURN MIN(a.data.severity_score) AS lowest, MAX(a.data.observed_at) AS last_seen",
+      "expected_envelope": "expected/nodeonly_agg__where.expected.json",
+      "expected_sql_snapshot": "expected/nodeonly_agg__where.sql.txt"
+    },
+    {
+      "name": "an aggregate over an empty node-only scan is one row: COUNT 0, MAX null",
+      "tags": [
+        "aggregation",
+        "node-only",
+        "empty-result",
+        "nulls"
+      ],
+      "covers": [
+        "req-grid-gryphon-nodeonly-agg",
+        "req-grid-gryphon-nodeonly-agg-3",
+        "req-grid-gryphon-minmax-5"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (aggregates over a single-label scan: count, min, max, grouping, empty input)",
+      "layer": "lite",
+      "query": "MATCH (a:grid_fixtures__node) WHERE a.data.severity_score > 100 RETURN COUNT(a) AS alerts, MAX(a.data.severity_score) AS highest",
+      "expected_envelope": "expected/nodeonly_agg__empty.expected.json",
+      "expected_sql_snapshot": "expected/nodeonly_agg__empty.sql.txt"
+    },
+    {
+      "name": "MIN of a field that is NULL on every matched node is null",
+      "tags": [
+        "aggregation",
+        "node-only",
+        "nulls"
+      ],
+      "covers": [
+        "req-grid-gryphon-nodeonly-agg",
+        "req-grid-gryphon-nodeonly-agg-2",
+        "req-grid-gryphon-minmax-5"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (aggregates over a single-label scan: count, min, max, grouping, empty input)",
+      "layer": "lite",
+      "query": "MATCH (a:grid_fixtures__node) WHERE a.data.severity_score < 5 RETURN MIN(a.data.observed_at) AS first_seen",
+      "expected_envelope": "expected/nodeonly_agg__all_null.expected.json",
+      "expected_sql_snapshot": "expected/nodeonly_agg__all_null.sql.txt"
+    },
+    {
+      "name": "an aggregate over a labelless scan is refused",
+      "tags": [
+        "aggregation",
+        "node-only",
+        "rejection",
+        "labelless"
+      ],
+      "covers": [
+        "req-grid-gryphon-nodeonly-agg",
+        "req-grid-gryphon-nodeonly-agg-5"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (refused aggregate shapes over a scan)",
+      "layer": "lite",
+      "query": "MATCH (a) RETURN COUNT(a) AS n",
+      "expected_error": {
+        "type": "SearchExecutionError",
+        "message_contains": "needs a labelled node"
+      }
+    },
+    {
+      "name": "an aggregate over two MATCH clauses is refused",
+      "tags": [
+        "aggregation",
+        "node-only",
+        "rejection",
+        "union"
+      ],
+      "covers": [
+        "req-grid-gryphon-nodeonly-agg",
+        "req-grid-gryphon-nodeonly-agg-6"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (refused aggregate shapes over a scan)",
+      "layer": "lite",
+      "query": "MATCH (a:grid_fixtures__node) MATCH (b:grid_fixtures__leaf) RETURN COUNT(a) AS n",
+      "expected_error": {
+        "type": "SearchExecutionError",
+        "message_contains": "exactly one top-level MATCH"
+      }
+    },
+    {
+      "name": "an aggregate on a variable the scan does not bind is refused",
+      "tags": [
+        "aggregation",
+        "node-only",
+        "rejection",
+        "unbound"
+      ],
+      "covers": [
+        "req-grid-gryphon-nodeonly-agg",
+        "req-grid-gryphon-nodeonly-agg-7"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (refused aggregate shapes over a scan)",
+      "layer": "lite",
+      "query": "MATCH (a:grid_fixtures__node) RETURN COUNT(b) AS n",
+      "expected_error": {
+        "type": "SearchExecutionError",
+        "message_contains": "Unknown variable 'b'"
+      }
+    },
+    {
+      "name": "a bare scanned variable cannot be a group key",
+      "tags": [
+        "aggregation",
+        "node-only",
+        "rejection",
+        "group-by"
+      ],
+      "covers": [
+        "req-grid-gryphon-nodeonly-agg",
+        "req-grid-gryphon-nodeonly-agg-7"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (refused aggregate shapes over a scan)",
+      "layer": "lite",
+      "query": "MATCH (a:grid_fixtures__node) RETURN a, COUNT(a) AS n",
+      "expected_error": {
+        "type": "SearchExecutionError",
+        "message_contains": "cannot be a group key"
+      }
+    },
+    {
+      "name": "COUNT of a deep path is refused",
+      "tags": [
+        "aggregation",
+        "node-only",
+        "rejection",
+        "count"
+      ],
+      "covers": [
+        "req-grid-gryphon-nodeonly-agg",
+        "req-grid-gryphon-nodeonly-agg-7"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (refused aggregate shapes over a scan)",
+      "layer": "lite",
+      "query": "MATCH (a:grid_fixtures__node) RETURN COUNT(a.data.kind) AS n",
+      "expected_error": {
+        "type": "SearchExecutionError",
+        "message_contains": "COUNT argument must be"
+      }
+    },
+    {
+      "name": "MAX of a plain string field is refused over a scan too",
+      "tags": [
+        "aggregation",
+        "node-only",
+        "rejection",
+        "string"
+      ],
+      "covers": [
+        "req-grid-gryphon-nodeonly-agg",
+        "req-grid-gryphon-nodeonly-agg-2",
+        "req-grid-gryphon-minmax-4"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (refused aggregate shapes over a scan)",
+      "layer": "lite",
+      "query": "MATCH (a:grid_fixtures__node) RETURN MAX(a.data.kind) AS n",
+      "expected_error": {
+        "type": "SearchExecutionError",
+        "message_contains": "declared {string}"
+      }
+    },
+    {
+      "name": "MIN of a spine field is refused over a scan too",
+      "tags": [
+        "aggregation",
+        "node-only",
+        "rejection",
+        "spine"
+      ],
+      "covers": [
+        "req-grid-gryphon-nodeonly-agg",
+        "req-grid-gryphon-nodeonly-agg-2",
+        "req-grid-gryphon-minmax-4"
+      ],
+      "inspired_by": "opencypher TCK — expressions/aggregation (refused aggregate shapes over a scan)",
+      "layer": "lite",
+      "query": "MATCH (a:grid_fixtures__node) RETURN MIN(a.name) AS n",
+      "expected_error": {
+        "type": "SearchExecutionError",
+        "message_contains": "typed data-lane field"
+      }
+    }
+  ]
+}

@@ -397,12 +397,15 @@ def _gen_typescan(rng: random.Random, vals: _Values) -> str:
     if rng.random() < 0.85:
         query += f" WHERE {_gen_predicate(rng, 'v', vals)}"
 
-    # No node-only COUNT aggregation: the executor deliberately scopes
-    # aggregation to traversals ("Advanced executor requires at least one edge"),
-    # so `MATCH (v:L) RETURN v.data.kind AS k, COUNT(v) AS c` is a clean v0
-    # rejection, not a supported shape — the fuzzer exercises COUNT over chains
-    # (which do support it) instead. (Recorded as a v0 gap in spec-gridkin-v0.md.)
-    mode = rng.choices(("envelope", "bare", "proj"), weights=(3, 2, 3))[0]
+    # Node-only aggregation (req-grid-gryphon-nodeonly-agg): COUNT / MIN / MAX over the scan,
+    # with or without a group key. Group keys are non-null string fields so the engine and the
+    # oracle group identically.
+    mode = rng.choices(("envelope", "bare", "proj", "agg"), weights=(3, 2, 3, 2))[0]
+    if mode == "agg":
+        extremum = f"{rng.choice(('MIN', 'MAX'))}(v.data.{rng.choice(('severity_score', 'observed_at'))}) AS m"
+        if rng.random() < 0.5:
+            return query + f" RETURN v.data.kind AS k, {extremum}, COUNT(v) AS c"
+        return query + f" RETURN {extremum}, COUNT(v) AS c"
     if mode == "bare":
         return query + " RETURN v"
     if mode == "proj":

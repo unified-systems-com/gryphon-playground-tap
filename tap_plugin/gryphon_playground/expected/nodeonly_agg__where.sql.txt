@@ -1,0 +1,6 @@
+-- statement 1 · stage: type-scan
+SELECT MIN("grid_fixtures__node"."severity_score") AS "_ts_agg_0", MAX("grid_fixtures__node"."observed_at") AS "_ts_agg_1"
+FROM "grid_fixtures__node"
+INNER JOIN "tap_entity" ON ("grid_fixtures__node"."entity_id" = "tap_entity"."id")
+WHERE ("tap_entity"."deleted_at" IS NULL AND "grid_fixtures__node"."kind" = %s)
+-- params: ['scanner-y']
