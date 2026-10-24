@@ -27,6 +27,6 @@ jobs:
     # Pinned by commit SHA for the same reason as ci.yml, and more so: this workflow decides
     # what is put in the SBOM and what gets attested, so an unpinned call signs whatever the
     # default branch says today. SHA = tap main as of 2026-09-25.
-    uses: unified-systems-com/tap/.github/workflows/plugin-release-sbom.yml@da212f5c0cf73d50d644f1c608e14b47515ccee8
+    uses: unified-systems-com/tap/.github/workflows/plugin-release-sbom.yml@7eada0f87b74b50786679e8375a9a30917ab7635
     with:
       plugin_slug: gryphon_playground
