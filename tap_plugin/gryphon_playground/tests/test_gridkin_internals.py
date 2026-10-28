@@ -391,6 +391,58 @@ class TestRegistryRedaction:
         assert once.endswith(f"-- params: ['grid_fixtures__node', '{_REGISTRY_SENTINEL}']")
         assert self._redact(once) == once
 
+    # Non-literal param reprs: core captures ``list(stmt.params)!r``, so a bound value that is an
+    # object (``Jsonb``, ``UUID``, ``Decimal``, ``datetime``) arrives as a call, not a literal.
+    # Redaction normalizes the registry enumeration only; every such param stays byte-for-byte.
+    _NONLITERAL = (
+        "Jsonb('gridkin')",
+        "UUID('019e4dbd-db9c-7713-b0fd-22b48f16a484')",
+        "Decimal('1.50')",
+        "datetime.datetime(2026, 10, 27, 1, 2, tzinfo=datetime.timezone.utc)",
+    )
+
+    @staticmethod
+    def _capture(registry_types, tail):
+        marks = ", ".join(["%s"] * len(registry_types))
+        quoted = ", ".join(t if "(" in t else repr(t) for t in registry_types)
+        return (
+            "-- statement 1 · stage: bare-type-scan\n"
+            'SELECT <entity-spine-columns> FROM "tap_entity"\n'
+            f'WHERE ("tap_entity"."entity_type" IN ({marks}) AND ("tap_entity"."dimensions" -> %s) = %s)\n'
+            f"-- params: [{quoted}, 'tap.playground', {tail}]"
+        )
+
+    @pytest.mark.parametrize("tail", _NONLITERAL)
+    def test_registry_collapses_beside_a_nonliteral_param(self, tail):
+        types = sorted(self._REGISTRY)
+        once = self._redact(self._capture(types, tail))
+        assert once.count(_REGISTRY_SENTINEL) == 2
+        assert once.endswith(f"-- params: ['{_REGISTRY_SENTINEL}', 'tap.playground', {tail}]")
+        assert self._redact(once) == once  # idempotent
+
+    @pytest.mark.parametrize("tail", _NONLITERAL)
+    def test_nonliteral_param_is_left_byte_identical_when_registry_is_absent(self, tail):
+        # A query's own type filter (not the registry) next to a non-literal param: nothing changes.
+        text = self._capture(["grid_fixtures__hub", "grid_fixtures__node"], tail)
+        assert self._redact(text) == text
+
+    def test_a_nonliteral_param_never_equals_a_registered_type(self):
+        # Same width as the registry, but one bound value is an object: not the registry's run.
+        text = self._capture(["grid_fixtures__hub", "grid_fixtures__leaf", "Jsonb('grid_fixtures__node')"], "1")
+        assert self._redact(text) == text
+
+    def test_plain_literal_params_render_exactly_as_before(self):
+        types = sorted(self._REGISTRY)
+        once = self._redact(self._capture(types, "'gridkin'"))
+        assert once.endswith(f"-- params: ['{_REGISTRY_SENTINEL}', 'tap.playground', 'gridkin']")
+
+    def test_an_unparseable_params_line_is_returned_unchanged(self):
+        text = (
+            'WHERE "tap_entity"."entity_type" IN (%s, %s, %s)\n'
+            "-- params: ['grid_fixtures__hub', <object at 0x7f>, 'grid_fixtures__node']"
+        )
+        assert self._redact(text) == text
+
     def test_mismatch_headline_names_a_params_identical_difference(self):
         a = "WHERE x IN (%s)\n-- params: ['a']"
         b = "WHERE x IN (<entity-type-registry>)\n-- params: ['a']"

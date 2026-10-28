@@ -88,11 +88,52 @@ def _registered_node_types() -> frozenset[str]:
     return frozenset(et for et in list_entity_types() if et != "edge")
 
 
+class _OpaqueParam:
+    """A bound param whose repr is not a Python literal (``Jsonb('x')``, ``UUID(...)``, ``Decimal(...)``).
+
+    Compared by identity, so it never equals a registered node type: a run containing one is
+    never the registry's. Its source text is carried by the caller, never rebuilt from this object.
+    """
+
+    __slots__ = ()
+
+
+def _split_params(params_text: str) -> tuple[list[str], list[Any]] | None:
+    """Per-element ``(source segments, comparable values)`` of a captured ``[...]`` params repr.
+
+    Core captures ``list(stmt.params)!r`` (tap_grid/gryphon/capture.py), so an element may be a
+    call such as ``Jsonb('gridkin')`` that ``ast.literal_eval`` rejects when applied to the whole
+    list. Each element is evaluated on its own; a non-literal one becomes an `_OpaqueParam`.
+    ``None`` means the line is not a parseable list, and the caller leaves it exactly as it is.
+    """
+    try:
+        tree = ast.parse(params_text, mode="eval")
+    except (SyntaxError, ValueError):
+        return None
+    if not isinstance(tree.body, ast.List):
+        return None
+    segments: list[str] = []
+    values: list[Any] = []
+    for element in tree.body.elts:
+        segment = ast.get_source_segment(params_text, element)
+        if segment is None:
+            return None
+        segments.append(segment)
+        try:
+            values.append(ast.literal_eval(element))
+        except (ValueError, TypeError, SyntaxError, MemoryError, RecursionError):
+            values.append(_OpaqueParam())
+    return segments, values
+
+
 def _redact_statement(sql_lines: list[str], params_line: str, registry: frozenset[str]) -> list[str]:
     params_match = _PARAMS_LINE_RE.fullmatch(params_line)
     if params_match is None:
         return [*sql_lines, params_line]
-    params = list(ast.literal_eval(params_match.group(1)))
+    split = _split_params(params_match.group(1))
+    if split is None:
+        return [*sql_lines, params_line]
+    segments, params = split
     sql = "\n".join(sql_lines)
     runs = []
     for match in _ENTITY_TYPE_IN_RE.finditer(sql):
@@ -105,8 +146,9 @@ def _redact_statement(sql_lines: list[str], params_line: str, registry: frozense
         return [*sql_lines, params_line]
     for match, first, width in reversed(runs):  # right to left keeps earlier offsets valid
         sql = sql[: match.start()] + f'"tap_entity"."entity_type" IN ({_REGISTRY_SENTINEL})' + sql[match.end() :]
-        params[first : first + width] = [_REGISTRY_SENTINEL]
-    return [*sql.split("\n"), "-- params: " + repr(params)]
+        segments[first : first + width] = [repr(_REGISTRY_SENTINEL)]
+    # Rebuilt from source segments, so every untouched param (including a non-literal one) stays byte-identical.
+    return [*sql.split("\n"), "-- params: [" + ", ".join(segments) + "]"]
 
 
 def redact_registry_scan(text: str, registry: frozenset[str] | None = None) -> str:
