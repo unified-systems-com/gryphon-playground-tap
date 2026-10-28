@@ -422,6 +422,31 @@ def _gen_inline_map(rng: random.Random, vals: _Values) -> str:
     return " {" + ", ".join(pairs) + "}"
 
 
+def duplicate_inline_rejection_queries(seed: int) -> list[str]:
+    """Generate duplicate-key refusals separately from valid-query differentials.
+
+    The valid generator samples UNIQUE keys; otherwise the parser's map-shaped
+    AST would hide an earlier obligation before the independent oracle sees it.
+    Exercise each shared-transformer surface with distinct non-null strings.
+    """
+    rng = random.Random(seed)
+    first, later = rng.sample(("neighbor", "island", "leaf", "hub"), 2)
+    props = f" {{kind: {_q(first)}, kind: {_q(later)}}}"
+    label = rng.choice(_LABELS)
+    return [
+        f"MATCH (a:{label}{props}) RETURN a",
+        f"MATCH (a:{label}{props})-[:X]->(b:{label}) RETURN a",
+        f"MATCH (a:{label})-[:X]->(b:{label}{props})-[:Y]->(c:{label}) RETURN a",
+        f"MATCH (a:{label})-[:X]->(b:{label})-[:Y]->(c:{label}{props}) RETURN a",
+        f"MATCH (a:{label})-[e{props}]->(b:{label}) RETURN a",
+        f"MATCH (a:{label}{props}) OPTIONAL MATCH (a)-[:X]->(b:{label}) " "RETURN a.entity_id AS id, COUNT(b) AS c",
+        f"MATCH (a:{label}) OPTIONAL MATCH (a)-[:X]->(b:{label}{props}) " "RETURN a.entity_id AS id, COUNT(b) AS c",
+        f"MATCH (a:{label}) MATCH (b:{label}{props}) RETURN a, b",
+        f"LOOKUP cfg = (:{label}{props}) MATCH (a:{label}) "
+        "WHERE a.data.observed_at + hours(cfg.data.severity_score) < now() RETURN a",
+    ]
+
+
 def _gen_typescan(rng: random.Random, vals: _Values) -> str:
     """`MATCH (v:LABEL) [WHERE p] [RETURN ...] [ORDER BY f [DESC] [LIMIT k]]`."""
     query = f"MATCH (v:{rng.choice(_LABELS)}{_gen_inline_map(rng, vals)})"

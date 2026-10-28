@@ -1,0 +1,24 @@
+{
+  "nodes": [],
+  "edges": [],
+  "rows": [
+    {
+      "value": "island"
+    },
+    {
+      "value": "island"
+    },
+    {
+      "value": "island"
+    },
+    {
+      "value": "neighbor"
+    },
+    {
+      "value": "neighbor"
+    },
+    {
+      "value": "neighbor"
+    }
+  ]
+}

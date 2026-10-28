@@ -1,0 +1,108 @@
+{
+  "feature": "Repeated constraints are rejected before reduction; deliberate alias reduction is pinned",
+  "background": {
+    "grift_fixture": "fixtures/sparse_dense.grift.json"
+  },
+  "scenarios": [
+    {
+      "name": "duplicate WHERE is refused before clause selection",
+      "tags": [
+        "duplicate-constraints",
+        "rejection",
+        "clean-neighbor"
+      ],
+      "covers": [
+        "req-grid-traversal-lang-shape-6"
+      ],
+      "inspired_by": "opencypher TCK \u2014 clauses/match (repeated authored constraints remain visible or reject)",
+      "layer": "full",
+      "query": "MATCH (n:grid_fixtures__node) WHERE n.name = \"a\" WHERE n.name = \"b\"",
+      "expected_error": {
+        "type": "SearchExecutionError"
+      }
+    },
+    {
+      "name": "duplicate RETURN is refused before clause selection",
+      "tags": [
+        "duplicate-constraints",
+        "rejection",
+        "clean-neighbor"
+      ],
+      "covers": [
+        "req-grid-traversal-lang-shape-6"
+      ],
+      "inspired_by": "opencypher TCK \u2014 clauses/match (repeated authored constraints remain visible or reject)",
+      "layer": "full",
+      "query": "MATCH (n:grid_fixtures__node) RETURN n RETURN n",
+      "expected_error": {
+        "type": "SearchExecutionError"
+      }
+    },
+    {
+      "name": "duplicate ORDER BY is refused before clause selection",
+      "tags": [
+        "duplicate-constraints",
+        "rejection",
+        "clean-neighbor"
+      ],
+      "covers": [
+        "req-grid-traversal-lang-shape-6"
+      ],
+      "inspired_by": "opencypher TCK \u2014 clauses/match (repeated authored constraints remain visible or reject)",
+      "layer": "full",
+      "query": "MATCH (n:grid_fixtures__node) ORDER BY n.name ORDER BY n.entity_id",
+      "expected_error": {
+        "type": "SearchExecutionError"
+      }
+    },
+    {
+      "name": "duplicate LIMIT is refused before clause selection",
+      "tags": [
+        "duplicate-constraints",
+        "rejection",
+        "clean-neighbor"
+      ],
+      "covers": [
+        "req-grid-traversal-lang-shape-6"
+      ],
+      "inspired_by": "opencypher TCK \u2014 clauses/match (repeated authored constraints remain visible or reject)",
+      "layer": "full",
+      "query": "MATCH (n:grid_fixtures__node) LIMIT 1 LIMIT 2",
+      "expected_error": {
+        "type": "SearchExecutionError"
+      }
+    },
+    {
+      "name": "duplicate LOOKUP variable is refused before dictionary reduction",
+      "tags": [
+        "duplicate-constraints",
+        "rejection",
+        "clean-neighbor"
+      ],
+      "covers": [
+        "req-grid-traversal-lang-temporal-offset-2"
+      ],
+      "inspired_by": "opencypher TCK \u2014 clauses/match (repeated authored constraints remain visible or reject)",
+      "layer": "full",
+      "query": "LOOKUP cfg = (:grid_fixtures__node {name: \"a\"}) LOOKUP cfg = (:grid_fixtures__node {name: \"b\"}) MATCH (n:grid_fixtures__node) WHERE n.data.observed_at + hours(cfg.data.severity_score) < now()",
+      "expected_error": {
+        "type": "SearchExecutionError"
+      }
+    },
+    {
+      "name": "duplicate output alias keeps the specified last value",
+      "tags": [
+        "duplicate-alias",
+        "clean-neighbor"
+      ],
+      "covers": [
+        "req-grid-traversal-exec-row-materialization-15"
+      ],
+      "inspired_by": "opencypher TCK \u2014 clauses/return-orderby (projection aliases; TAP preserves deliberate last-wins on duplicate aliases)",
+      "layer": "full",
+      "query": "MATCH (n:grid_fixtures__node) RETURN n.name AS value, n.data.kind AS value",
+      "expected_envelope": "expected/constraint_reduction__alias_last.expected.json",
+      "expected_sql_snapshot": "expected/constraint_reduction__alias_last.sql.txt"
+    }
+  ]
+}

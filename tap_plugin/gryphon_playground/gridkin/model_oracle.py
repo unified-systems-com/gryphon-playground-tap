@@ -610,6 +610,9 @@ class PatternMatch:
 def _node_matches(node_pat: Any, record: NodeRecord, inputs: dict[str, Any]) -> bool:
     if node_pat.label is not None and record.entity_type != node_pat.label:
         return False
+    # Maps arrive through the validated parser: repeated authored keys are
+    # refused BEFORE dict reduction. The oracle never interprets last-wins
+    # constraints; the rejection corpus and rejection generator pin that gate.
     for key, raw in node_pat.inline_props.items():
         want = _resolve_value(raw, inputs)
         # DATA-LANE ONLY — `{k: v}` is exactly `WHERE var.data.k = v` (#196 and

@@ -14,14 +14,14 @@
       "covers": [
         "req-grid-traversal-lang-filters-1"
       ],
-      "inspired_by": "opencypher TCK — clauses/match (node property map); mirror of type_scan 'scan filters pg_node by a data-lane field'",
+      "inspired_by": "opencypher TCK \u2014 clauses/match (node property map); mirror of type_scan 'scan filters pg_node by a data-lane field'",
       "layer": "full",
       "query": "MATCH (n:grid_fixtures__node {kind: \"island\"})",
       "expected_envelope": "expected/inline_props__kind_island.expected.json",
       "expected_sql_snapshot": "expected/inline_props__kind_island.sql.txt"
     },
     {
-      "name": "boolean inline map filters — the BloodHound org-setting shape",
+      "name": "boolean inline map filters \u2014 the BloodHound org-setting shape",
       "tags": [
         "inline-props",
         "type-scan",
@@ -31,7 +31,7 @@
       "covers": [
         "req-grid-traversal-lang-filters-1"
       ],
-      "inspired_by": "opencypher TCK — clauses/match (node property map, boolean value — the BloodHound org-setting shape, #196)",
+      "inspired_by": "opencypher TCK \u2014 clauses/match (node property map, boolean value \u2014 the BloodHound org-setting shape, #196)",
       "layer": "full",
       "query": "MATCH (n:grid_fixtures__node {is_open: true})",
       "expected_envelope": "expected/inline_props__is_open.expected.json",
@@ -47,7 +47,7 @@
       "covers": [
         "req-grid-traversal-lang-filters-1"
       ],
-      "inspired_by": "opencypher TCK — clauses/match (property map matching nothing; #196's defect returned every node instead)",
+      "inspired_by": "opencypher TCK \u2014 clauses/match (property map matching nothing; #196's defect returned every node instead)",
       "layer": "full",
       "query": "MATCH (n:grid_fixtures__node {kind: \"zzz-no-such-kind\"})",
       "expected_envelope": "expected/inline_props__no_match.expected.json",
@@ -63,7 +63,7 @@
       "covers": [
         "req-grid-traversal-lang-filters-1"
       ],
-      "inspired_by": "opencypher TCK — clauses/match (property maps on both nodes of a relationship pattern)",
+      "inspired_by": "opencypher TCK \u2014 clauses/match (property maps on both nodes of a relationship pattern)",
       "layer": "full",
       "query": "MATCH (a:grid_fixtures__hub {kind: \"hub\"})-[e:PG_LINKS__grid_fixtures]->(b:grid_fixtures__node {kind: \"neighbor\"})",
       "expected_envelope": "expected/inline_props__chain_hub.expected.json",
@@ -81,11 +81,127 @@
         "req-grid-traversal-lang-filters-1",
         "req-grid-traversal-lang-filters-2"
       ],
-      "inspired_by": "opencypher TCK — clauses/match (property map combined with WHERE)",
+      "inspired_by": "opencypher TCK \u2014 clauses/match (property map combined with WHERE)",
       "layer": "full",
       "query": "MATCH (n:grid_fixtures__node {kind: \"neighbor\"}) WHERE n.data.is_open = true",
       "expected_envelope": "expected/inline_props__map_and_where.expected.json",
       "expected_sql_snapshot": "expected/inline_props__map_and_where.sql.txt"
+    },
+    {
+      "name": "duplicate node inline keys are refused before parameter extraction",
+      "tags": [
+        "inline-props",
+        "duplicate-keys",
+        "rejection"
+      ],
+      "covers": [
+        "req-grid-traversal-lang-filters-1"
+      ],
+      "inspired_by": "opencypher TCK \u2014 expressions/map (duplicate map key ambiguity; fail closed before key reduction)",
+      "layer": "full",
+      "query": "MATCH (n:grid_fixtures__node {kind: $required_kind, kind: $later_kind})",
+      "params": {
+        "later_kind": "neighbor"
+      },
+      "expected_error": {
+        "type": "SearchExecutionError",
+        "message_contains": "Duplicate inline property key"
+      }
+    },
+    {
+      "name": "identical duplicate node keys are still refused",
+      "tags": [
+        "inline-props",
+        "duplicate-keys",
+        "rejection"
+      ],
+      "covers": [
+        "req-grid-traversal-lang-filters-1"
+      ],
+      "inspired_by": "opencypher TCK \u2014 expressions/map (duplicate map key ambiguity; fail closed before key reduction)",
+      "layer": "full",
+      "query": "MATCH (n:grid_fixtures__node {kind: \"neighbor\", kind: \"neighbor\"})",
+      "params": {},
+      "expected_error": {
+        "type": "SearchExecutionError",
+        "message_contains": "Duplicate inline property key"
+      }
+    },
+    {
+      "name": "duplicate chain node keys are refused",
+      "tags": [
+        "inline-props",
+        "duplicate-keys",
+        "rejection"
+      ],
+      "covers": [
+        "req-grid-traversal-lang-filters-1"
+      ],
+      "inspired_by": "opencypher TCK \u2014 expressions/map (duplicate map key ambiguity; fail closed before key reduction)",
+      "layer": "full",
+      "query": "MATCH (a:grid_fixtures__hub)-[:PG_LINKS__grid_fixtures]->(b:grid_fixtures__node {kind: \"island\", kind: \"neighbor\"})",
+      "params": {},
+      "expected_error": {
+        "type": "SearchExecutionError",
+        "message_contains": "Duplicate inline property key"
+      }
+    },
+    {
+      "name": "duplicate edge inline keys are refused",
+      "tags": [
+        "inline-props",
+        "duplicate-keys",
+        "rejection"
+      ],
+      "covers": [
+        "req-grid-traversal-lang-filters-1"
+      ],
+      "inspired_by": "opencypher TCK \u2014 expressions/map (duplicate map key ambiguity; fail closed before key reduction)",
+      "layer": "full",
+      "query": "MATCH (a:grid_fixtures__hub)-[e:PG_LINKS__grid_fixtures {weight: 1, weight: 2}]->(b:grid_fixtures__node)",
+      "params": {},
+      "expected_error": {
+        "type": "SearchExecutionError",
+        "message_contains": "Duplicate inline property key"
+      }
+    },
+    {
+      "name": "duplicate optional node keys are refused",
+      "tags": [
+        "inline-props",
+        "duplicate-keys",
+        "rejection"
+      ],
+      "covers": [
+        "req-grid-traversal-lang-filters-1"
+      ],
+      "inspired_by": "opencypher TCK \u2014 expressions/map (duplicate map key ambiguity; fail closed before key reduction)",
+      "layer": "full",
+      "query": "MATCH (a:grid_fixtures__hub) OPTIONAL MATCH (a)-[:PG_LINKS__grid_fixtures]->(b:grid_fixtures__node {kind: \"island\", kind: \"neighbor\"}) RETURN a.entity_id AS id, COUNT(b) AS c",
+      "params": {},
+      "expected_error": {
+        "type": "SearchExecutionError",
+        "message_contains": "Duplicate inline property key"
+      }
+    },
+    {
+      "name": "duplicate lookup keys are refused",
+      "tags": [
+        "inline-props",
+        "duplicate-keys",
+        "rejection"
+      ],
+      "covers": [
+        "req-grid-traversal-lang-filters-1"
+      ],
+      "inspired_by": "opencypher TCK \u2014 expressions/map (duplicate map key ambiguity; fail closed before key reduction)",
+      "layer": "full",
+      "query": "LOOKUP cfg = (:grid_fixtures__node {kind: \"island\", kind: \"neighbor\"}) MATCH (n:grid_fixtures__node) WHERE n.data.observed_at + hours(cfg.data.severity_score) < now()",
+      "params": {},
+      "expected_error": {
+        "type": "SearchExecutionError",
+        "message_contains": "Duplicate inline property key"
+      }
     }
   ]
 }

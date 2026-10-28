@@ -74,3 +74,15 @@ def test_fuzz_corpus_is_non_trivial() -> None:
     assert len(_CASES) >= 1
     assert all(len(c.queries) >= 1 for c in _CASES)
     assert sum(len(c.queries) for c in _CASES) >= 30
+
+
+@pytest.mark.parametrize("seed", range(12))
+def test_generated_duplicate_maps_are_refused(seed: int) -> None:
+    """Invalid-key grammar is a rejection lane, never an oracle differential."""
+    from tap_grid.gryphon.parser import GryphonParseError, parse_gryphon
+
+    queries = fuzz.duplicate_inline_rejection_queries(seed)
+    assert len(queries) == 9
+    for query in queries:
+        with pytest.raises(GryphonParseError, match="Duplicate inline property key"):
+            parse_gryphon(query)
