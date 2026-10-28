@@ -329,6 +329,13 @@ def _leaf_in(rng: random.Random, var: str, vals: _Values, *, far: bool = False) 
     return f"{path} IN [{', '.join(members)}]"
 
 
+def _leaf_dimension(rng: random.Random, var: str, _vals: _Values, *, far: bool = False) -> str:
+    # Generated fixture entities carry this one literal dotted key. A nudge to
+    # an absent value makes the flat-key answer non-vacuous in either direction.
+    value = rng.choice(("gridkin", "no-such-playground"))
+    return f'{var}.dimensions["tap.playground"] = {_q(value)}'
+
+
 def _leaf_observation(rng: random.Random, var: str, _vals: _Values, *, far: bool = False) -> str:
     return f"{var}.data.observed_at " + rng.choice(("IS NULL", "IS NOT NULL", "IS KNOWN", "IS UNKNOWN"))
 
@@ -339,6 +346,7 @@ _LEAF_GENERATORS = (
     _leaf_bool,
     _leaf_in,
     _leaf_observation,
+    _leaf_dimension,
 )
 
 
@@ -619,6 +627,12 @@ def _gen_temporal(rng: random.Random, vals: _Values) -> str:
     return pattern
 
 
+def _gen_bare_dimensions(rng: random.Random, _vals: _Values) -> str:
+    """Exercise the Entity-spine resolver, independently of typed predicates."""
+    value = rng.choice(("gridkin", "no-such-playground"))
+    return f'MATCH (n) WHERE n.dimensions["tap.playground"] = {_q(value)} RETURN n'
+
+
 def _gen_union(rng: random.Random, vals: _Values) -> str:
     """`MATCH (a:L1) MATCH (b:L2) [WHERE p]` — deduplicated envelope union.
 
@@ -637,13 +651,15 @@ def _gen_union(rng: random.Random, vals: _Values) -> str:
 
 def _gen_query(rng: random.Random, nodes: list[dict[str, Any]]) -> str:
     vals = _sample_values(nodes)
-    family = rng.choices(("typescan", "chain", "union", "temporal"), weights=(6, 3, 1, 2))[0]
+    family = rng.choices(("typescan", "chain", "union", "temporal", "bare-dimensions"), weights=(6, 3, 1, 2, 2))[0]
     if family == "typescan":
         return _gen_typescan(rng, vals)
     if family == "chain":
         return _gen_chain(rng, vals)
     if family == "temporal":
         return _gen_temporal(rng, vals)
+    if family == "bare-dimensions":
+        return _gen_bare_dimensions(rng, vals)
     return _gen_union(rng, vals)
 
 

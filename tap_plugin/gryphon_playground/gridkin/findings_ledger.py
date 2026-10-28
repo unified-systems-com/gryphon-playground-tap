@@ -85,6 +85,7 @@ FUNCTION_SUBSYSTEM: dict[str, str] = {
     "_orm_path_for_field": "field-path-resolution",
     "_orm_path_for_envelope_path": "field-path-resolution",
     "_typescan_orm_path": "field-path-resolution",
+    "_bare_spine_orm_path": "field-path-resolution",
     # envelope-collection
     "_collect_graph_envelope": "envelope-collection",
     "_execute_single_hop_envelope": "envelope-collection",

@@ -74,6 +74,9 @@ def test_fuzz_corpus_is_non_trivial() -> None:
     assert len(_CASES) >= 1
     assert all(len(c.queries) >= 1 for c in _CASES)
     assert sum(len(c.queries) for c in _CASES) >= 30
+    queries = [query for case in _CASES for query in case.queries]
+    assert any(query.startswith('MATCH (n) WHERE n.dimensions["tap.playground"]') for query in queries)
+    assert any('.dimensions["tap.playground"]' in query and not query.startswith("MATCH (n)") for query in queries)
 
 
 @pytest.mark.parametrize("seed", range(12))
