@@ -85,6 +85,7 @@
       "inspired_by": "opencypher TCK \u2014 clauses/match (repeated authored constraints remain visible or reject)",
       "layer": "full",
       "query": "LOOKUP cfg = (:grid_fixtures__node {name: \"a\"}) LOOKUP cfg = (:grid_fixtures__node {name: \"b\"}) MATCH (n:grid_fixtures__node) WHERE n.data.observed_at + hours(cfg.data.severity_score) < now()",
+      "clock": "2026-03-10T00:00:00Z",
       "expected_error": {
         "type": "SearchExecutionError"
       }
