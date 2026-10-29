@@ -438,9 +438,9 @@ def duplicate_inline_rejection_queries(seed: int) -> list[str]:
     Exercise each shared-transformer surface with distinct non-null strings.
     """
     rng = random.Random(seed)
-    first, later = rng.sample(("neighbor", "island", "leaf", "hub"), 2)
+    first, later = rng.sample(("neighbor", "island", "leaf", "hub"), 2)  # NOSONAR: seeded, replayable test-data generator, not a security use
     props = f" {{kind: {_q(first)}, kind: {_q(later)}}}"
-    label = rng.choice(_LABELS)
+    label = rng.choice(_LABELS)  # NOSONAR: seeded, replayable test-data generator, not a security use
     return [
         f"MATCH (a:{label}{props}) RETURN a",
         f"MATCH (a:{label}{props})-[:X]->(b:{label}) RETURN a",
