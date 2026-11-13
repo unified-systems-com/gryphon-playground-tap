@@ -5,8 +5,8 @@
       "entity_type": "grid_fixtures__node",
       "name": "North Alpha",
       "dimensions": {
-        "zone": "north",
-        "tap.playground": "gridkin"
+        "tap.playground": "gridkin",
+        "zone": "north"
       },
       "deleted_at": null,
       "version": 1
@@ -16,8 +16,8 @@
       "entity_type": "grid_fixtures__node",
       "name": "North Beta",
       "dimensions": {
-        "zone": "north",
-        "tap.playground": "gridkin"
+        "tap.playground": "gridkin",
+        "zone": "north"
       },
       "deleted_at": null,
       "version": 1

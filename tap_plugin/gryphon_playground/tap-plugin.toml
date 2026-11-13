@@ -25,6 +25,11 @@ depends_on = [
 # (req-boot-bootstrap-default-record-2).
 requires_tap = ">=0.3.1"  # the floor the push/PR lane proves (tap#365; George 2026-09-10; raised from 0.1.5 on 2026-10-13, tap#1013)
 
+# Dimension nodes for the keys the corpus stamps that no other plugin declares (zone).
+# Dimensions are declared, never minted (aws-build Q48a); tap.playground is grid_fixtures'.
+[grift]
+dimension = "grift/dimension.grift.json"
+
 [[boot.records]]
 name = "ci"
 description = "RESERVED NAME (req-boot-bootstrap-ci-record): the stack this plugin's own tests run in — depends_on closure + self, offline, credential-free. The consumer flips self to editable."
