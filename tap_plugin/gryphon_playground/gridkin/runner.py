@@ -442,6 +442,7 @@ def run_scenario(scenario: Scenario, *, update_snapshots: bool = False) -> list[
     With `update_snapshots`, the oracle files are regenerated and an empty list
     is returned (regeneration never "fails").
     """
+    resident = _resident_document()
     _seed_fixture(scenario)
 
     # Rejection scenario: the query must be refused. The error spec IS the
@@ -464,11 +465,11 @@ def run_scenario(scenario: Scenario, *, update_snapshots: bool = False) -> list[
     failures.extend(_check_envelope(scenario, actual_envelope))
     failures.extend(_check_sql(scenario, actual_sql))
     failures.extend(_check_scan_roster(scenario, actual_sql))
-    failures.extend(_check_oracle(scenario, actual_envelope))
+    failures.extend(_check_oracle(scenario, actual_envelope, resident))
     return failures
 
 
-def _check_oracle(scenario: Scenario, actual: dict[str, Any]) -> list[str]:
+def _check_oracle(scenario: Scenario, actual: dict[str, Any], resident: dict[str, Any] | None = None) -> list[str]:
     """Diff the independent model-based reference oracle against the executor.
 
     The oracle (`model_oracle.evaluate`) computes the correct result a *second*
@@ -491,7 +492,7 @@ def _check_oracle(scenario: Scenario, actual: dict[str, Any]) -> list[str]:
     if scenario.expected_error is not None:
         return []
     try:
-        graph = Graph.from_grift(_oracle_document(scenario), frozenset(scenario.soft_delete))
+        graph = Graph.from_grift(_oracle_document(scenario, resident), frozenset(scenario.soft_delete))
         parsed = parse_gryphon(scenario.query)
         oracle = evaluate(parsed, graph, scenario.params, clock=scenario_instant(scenario))
     except OracleUnmodeled:
@@ -514,9 +515,40 @@ def _check_oracle(scenario: Scenario, actual: dict[str, Any]) -> list[str]:
     ]
 
 
-def _oracle_document(scenario: Scenario) -> dict[str, Any]:
-    """Merge the scenario's GRIFT fixture(s) into one document for the oracle."""
-    batches: list[Any] = []
+def _resident_document() -> dict[str, Any]:
+    """The nodes already on the grid before the scenario's fixture lands, as one GRIFT-shaped batch.
+
+    Core resolves dimension names from live Dimension rows (unified-systems-com/tap#1188), so every
+    grid, each test database included, holds its Dimension nodes and the batches that imported them
+    before anything else is written. A labelless scan returns them, so the oracle models them too.
+    They are read as plain rows through the ORM (spine, named dimensions, the model's writeable
+    fields), with no Gryphon lowering, so the oracle stays independent of the executor. Resident
+    edges are not modelled; core seeds none, and an edge scan would surface one as a disagreement.
+    """
+    from tap_grid.dimension_names import view
+    from tap_grid.grift.exporter import writeable_field_names
+    from tap_grid.grift.subgraph import json_safe
+    from tap_grid.models import Entity
+    from tap_grid.registry import resolve_entity
+
+    nodes: list[dict[str, Any]] = []
+    for entity in Entity.objects.exclude(entity_type="edge").order_by("id"):
+        row = resolve_entity(entity.id)
+        fields = writeable_field_names(type(row))
+        envelope = {
+            "entity_id": str(entity.id),
+            "entity_type": entity.entity_type,
+            "dimensions": view(entity.dimensions),
+        }
+        if entity.name:
+            envelope["name"] = entity.name
+        nodes.append({"entity": envelope, "node": {name: json_safe(getattr(row, name, None)) for name in fields}})
+    return {"batches": [{"nodes": nodes, "edges": []}]} if nodes else {"batches": []}
+
+
+def _oracle_document(scenario: Scenario, resident: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Merge the grid's resident nodes and the scenario's GRIFT fixture(s) into one document for the oracle."""
+    batches: list[Any] = list((resident or {}).get("batches", []))
     for path in scenario.fixture_paths:
         doc = json.loads(path.read_text(encoding="utf-8"))
         batches.extend(doc.get("batches", []))
