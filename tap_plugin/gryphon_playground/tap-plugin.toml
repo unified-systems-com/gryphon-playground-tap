@@ -28,7 +28,7 @@ requires_tap = ">=0.3.1"  # the floor the push/PR lane proves (tap#365; George 2
 [[boot.records]]
 name = "ci"
 description = "RESERVED NAME (req-boot-bootstrap-ci-record): the stack this plugin's own tests run in — depends_on closure + self, offline, credential-free. The consumer flips self to editable."
-sha256 = "4035b8418918e538a89a3eb856a625402b7a44166f12dc3fb1c9eea2b3babdc1"
+sha256 = "5ff7b4ed09ab4ed4502a17839301ee2d5f7995b2b24d07bfa7369875af5726f5"
 
 [[boot.records]]
 name = "playground"
