@@ -457,12 +457,17 @@ def run_scenario(scenario: Scenario, *, update_snapshots: bool = False) -> list[
     actual_envelope: dict[str, Any] = result["envelope"]
     actual_sql: str = result["sql"].render()
 
+    # The snapshot holds what the scenario's own fixture produced. The rows a grid carries before any
+    # fixture lands (its Dimension nodes and their batches) differ with the plugins installed, so they
+    # are left out of the snapshot and judged by the oracle below, which reads them from this grid.
+    fixture_envelope = _without_residents(actual_envelope, resident)
+
     if update_snapshots:
-        _write_snapshots(scenario, actual_envelope, actual_sql)
+        _write_snapshots(scenario, fixture_envelope, actual_sql)
         return []
 
     failures: list[str] = []
-    failures.extend(_check_envelope(scenario, actual_envelope))
+    failures.extend(_check_envelope(scenario, fixture_envelope))
     failures.extend(_check_sql(scenario, actual_sql))
     failures.extend(_check_scan_roster(scenario, actual_sql))
     failures.extend(_check_oracle(scenario, actual_envelope, resident))
@@ -724,6 +729,28 @@ def _canonical_envelope(envelope: dict[str, Any]) -> dict[str, Any]:
             projected = [_project_member(m) for m in members]
             canonical[key] = sorted(projected, key=lambda m: str(m.get("entity_id", "")))
     return canonical
+
+
+def _without_residents(envelope: dict[str, Any], resident: dict[str, Any]) -> dict[str, Any]:
+    """The envelope without the members that were on the grid before the scenario's fixture.
+
+    A labelless scan returns every node, the grid's own Dimension nodes and import batches included.
+    Which of those exist is a fact about the stack (each installed plugin declares its dimensions),
+    not about the query, so a snapshot that listed them passed only on the stack that wrote it. This
+    is the envelope's counterpart of `redact_registry_scan` for the SQL. `rows` is left alone: a
+    projection or an aggregate has no member to drop.
+    """
+    resident_ids = {
+        node["entity"]["entity_id"] for batch in resident.get("batches", []) for node in batch.get("nodes", [])
+    }
+    if not resident_ids:
+        return envelope
+    trimmed = dict(envelope)
+    for key in ("nodes", "edges"):
+        members = trimmed.get(key)
+        if isinstance(members, list):
+            trimmed[key] = [m for m in members if str(m.get("entity_id", "")) not in resident_ids]
+    return trimmed
 
 
 def _write_snapshots(scenario: Scenario, envelope: dict[str, Any], sql_text: str) -> None:
