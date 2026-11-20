@@ -1,0 +1,38 @@
+{
+  "metadata": {
+    "grift_version": "0"
+  },
+  "_reserved": {},
+  "batches": [
+    {
+      "batch_entity": {
+        "entity_id": "01a1d37f-27ca-73b0-a4c3-77484701c62b",
+        "entity_type": "batch",
+        "name": "Gryphon Playground dimension v0.1.0",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "source": "plugins.gryphon_playground.grift.dimension",
+        "name": "Gryphon Playground dimension v0.1.0",
+        "description": "Dimension nodes for the keys the Gridkin corpus stamps that no other plugin declares. Dimensions are declared, never created on demand (aws-build Q48a). tap.playground is grid_fixtures' and tap.graph is core's; neither is redeclared here."
+      },
+      "nodes": [
+        {
+          "entity": {
+            "entity_id": "01a1d37f-27ca-73b0-a4c3-77493aee2e19",
+            "entity_type": "dimension",
+            "name": "zone",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "zone",
+            "description": "A test-only partition key the Gridkin dimensions and param_null scenarios filter on (values north and south in fixtures/dimensions.grift.json). Corpus vocabulary only: no product plugin stamps it."
+          }
+        }
+      ],
+      "edges": []
+    }
+  ]
+}
