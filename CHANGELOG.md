@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.6.4](https://github.com/unified-systems-com/gryphon-playground-tap/compare/v0.6.3...v0.6.4) (2026-11-20)
+
+
+### Features
+
+* **dimensions:** seed the zone dimension; Gridkin snapshots for UUID-keyed dimensions ([7166f56](https://github.com/unified-systems-com/gryphon-playground-tap/commit/7166f560c47d56158c4f4615907b5615cc698c83))
+* **dimensions:** seed the zone dimension; Gridkin snapshots for UUID-keyed dimensions ([647679c](https://github.com/unified-systems-com/gryphon-playground-tap/commit/647679caabd7e8025c3fb04b01af21442b5391c8))
+
+
+### Bug Fixes
+
+* **gridkin:** a snapshot holds the fixture's rows, not the grid's resident ones ([b80f3e0](https://github.com/unified-systems-com/gryphon-playground-tap/commit/b80f3e02ed1022f66e66c5331788c98c3364257f))
+* **gridkin:** the oracle models the nodes already on the grid ([22dd9fe](https://github.com/unified-systems-com/gryphon-playground-tap/commit/22dd9fe44693d46410e1edd61cea1f0444d90b52))
+
 ## [0.6.3](https://github.com/unified-systems-com/gryphon-playground-tap/compare/v0.6.2...v0.6.3) (2026-10-30)
 
 
