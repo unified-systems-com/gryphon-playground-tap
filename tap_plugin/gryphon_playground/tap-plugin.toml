@@ -33,14 +33,14 @@ dimension = "grift/dimension.grift.json"
 [[boot.records]]
 name = "ci"
 description = "RESERVED NAME (req-boot-bootstrap-ci-record): the stack this plugin's own tests run in — depends_on closure + self, offline, credential-free. The consumer flips self to editable."
-sha256 = "9732eabed9767505896c428b1f3ddcf125d8cb9046fec33816c5d99cfa3801d1"
+sha256 = "0778d2c0b0a7af3e7afc47ca030a2ae26bc2b86cd3552d9f2725f4ae08617946"
 
 [[boot.records]]
 name = "playground"
 description = "Muck around: grid_fixtures vocab + Gridkin corpus, no workers, empty grid."
-sha256 = "aa5b52bce0c42b8a439279fdc7b32d04e423968675f1494ceb43a330ee4f4be1"
+sha256 = "c8533f9a48ae3bf6047456800be166f532684f18d4e9f8ed5069bb08e2737642"
 
 [[boot.records]]
 name = "soak"
 description = "Fuzz-campaign flavor: same install as playground; reserved for the differential-fuzz soak (driven by scripts/gryphon-fuzz-campaign today)."
-sha256 = "dda8fed9a651b0522925102a747a7c51d8080c232389ed827ab3e6b4fccbc7bd"
+sha256 = "547d18b4f6a068557c1a449ddbc8f31b24d003d36a1d91df5ac2ab2be41631fc"
