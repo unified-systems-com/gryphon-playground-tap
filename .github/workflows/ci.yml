@@ -40,8 +40,9 @@ jobs:
     # Pinned by commit SHA, not by a name: `@main` lets whoever moves tap's default branch
     # decide which validation logic runs here, so a green run would not attest to the logic
     # this repo reviewed (tap#376's done-test; validate_plugin --repo enforces it). This SHA
-    # is tap main as of 2026-09-25, which is the logic this lane was already running.
-    uses: unified-systems-com/tap/.github/workflows/plugin-ci.yml@7eada0f87b74b50786679e8375a9a30917ab7635
+    # is tap v0.4.9 (86f9d918), the release the oracles and requires_tap target; from this pin
+    # plugin-ci also runs `makemigrations --check` over the plugin's app labels.
+    uses: unified-systems-com/tap/.github/workflows/plugin-ci.yml@86f9d918ad5ac2cce52225d3c5a4dd0596aab68e
     with:
       plugin_slug: gryphon_playground
       # Pinned deliberately. `main` means "whatever core is today", which turns an
