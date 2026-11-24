@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.6.5](https://github.com/unified-systems-com/gryphon-playground-tap/compare/v0.6.4...v0.6.5) (2026-11-24)
+
+
+### Bug Fixes
+
+* move onto core v0.4.9 and restamp the wildcard-edge fixtures ([e327ec4](https://github.com/unified-systems-com/gryphon-playground-tap/commit/e327ec4fb4d4948fb34f044342f78c50b94bc97d))
+* regenerate the Gridkin oracles and restamp GRIFT for core v0.4.9 ([d367986](https://github.com/unified-systems-com/gryphon-playground-tap/commit/d36798620dc195e4c3ae94a2286488ac353a1757))
+* regenerate the Gridkin oracles for the spine copies and restamp GRIFT at format "1" ([43414ae](https://github.com/unified-systems-com/gryphon-playground-tap/commit/43414aeb2fb1048ea278e11a765e8dfd14e41400))
+
 ## [0.6.4](https://github.com/unified-systems-com/gryphon-playground-tap/compare/v0.6.3...v0.6.4) (2026-11-20)
 
 
