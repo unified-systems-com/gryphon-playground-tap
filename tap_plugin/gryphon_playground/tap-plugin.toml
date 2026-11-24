@@ -23,7 +23,7 @@ depends_on = [
 # tap/tests/test_boot_records.py guard fails closed on digest drift or a manifest<->files
 # mismatch. gryphon ships no `default` record: a bare pointer fails closed naming these
 # (req-boot-bootstrap-default-record-2).
-requires_tap = ">=0.4.1"  # dimensions keyed by Dimension node (tap#711); 0.4.1 is the first 0.4.x with published images (raised from 0.3.1 on 2026-11-20)
+requires_tap = ">=0.4.9"  # spine copies (typed batch_id removed, spine version 2) and dimension-based natural keys: the oracles in expected/ and grid_fixtures 0004 need core v0.4.9 (raised from 0.4.1 on 2026-11-24)
 
 # Dimension nodes for the keys the corpus stamps that no other plugin declares (zone).
 # Dimensions are declared, never minted (aws-build Q48a); tap.playground is grid_fixtures'.
@@ -33,7 +33,7 @@ dimension = "grift/dimension.grift.json"
 [[boot.records]]
 name = "ci"
 description = "RESERVED NAME (req-boot-bootstrap-ci-record): the stack this plugin's own tests run in — depends_on closure + self, offline, credential-free. The consumer flips self to editable."
-sha256 = "1b8a84773f6da2e541d0233ccf2e75eab6c475aad02101bf141ce33943c50d48"
+sha256 = "9732eabed9767505896c428b1f3ddcf125d8cb9046fec33816c5d99cfa3801d1"
 
 [[boot.records]]
 name = "playground"

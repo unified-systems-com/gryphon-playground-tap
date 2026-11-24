@@ -15,7 +15,7 @@ WHERE ("tap_entity"."deleted_at" IS NULL AND "tap_entity"."id" IN (%s, %s, %s))
 ORDER BY "tap_entity"."created_at" DESC
 -- params: [UUID('019e8b00-0000-7000-8000-000000000002'), UUID('019e8b00-0000-7000-8000-000000000015'), UUID('019e8b00-0000-7000-8000-000000000016')]
 -- statement 3 · stage: single-hop
-SELECT "tap_edge"."id", "tap_edge"."entity_id", "tap_edge"."batch_id", "tap_edge"."flip_map", "tap_edge"."from_entity_id", "tap_edge"."to_entity_id", "tap_edge"."edge_type", "tap_edge"."properties", <entity-spine-columns>
+SELECT "tap_edge"."id", "tap_edge"."entity_id", "tap_edge"."flip_map", "tap_edge"."spine_deleted_at", "tap_edge"."spine_dimensions", "tap_edge"."from_entity_id", "tap_edge"."to_entity_id", "tap_edge"."edge_type", "tap_edge"."properties", <entity-spine-columns>
 FROM "tap_edge"
 INNER JOIN "tap_entity" ON ("tap_edge"."entity_id" = "tap_entity"."id")
 INNER JOIN "tap_entity" T3 ON ("tap_edge"."from_entity_id" = T3."id")

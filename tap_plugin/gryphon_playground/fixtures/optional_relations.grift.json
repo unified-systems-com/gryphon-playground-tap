@@ -1,5 +1,5 @@
 {
-  "metadata": { "grift_version": "0" },
+  "metadata": {"grift_version": "1", "spine_version": 1, "type_versions": {"PG_LINKS__grid_fixtures": 1, "PG_OPTIONAL__grid_fixtures": 1, "batch": 1, "grid_fixtures__hub": 1, "grid_fixtures__node": 1}},
   "_reserved": {},
   "batches": [
     {
