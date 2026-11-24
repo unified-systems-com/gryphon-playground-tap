@@ -16,7 +16,7 @@ WHERE ("tap_entity"."deleted_at" IS NULL AND "tap_entity"."id" IN (%s, %s, %s, %
 ORDER BY "tap_entity"."created_at" DESC
 -- params: [UUID('019e4b02-f37b-72df-a3e5-baf99158bb0c'), UUID('019e4b02-f37b-72df-a3e5-bafa7b3865a9'), UUID('019e4b02-f37b-72df-a3e5-bafb10535646'), UUID('019e4b02-f37b-72df-a3e5-bafc00e2b0af')]
 -- statement 3 · stage: single-hop
-SELECT "tap_edge"."id", "tap_edge"."entity_id", "tap_edge"."batch_id", "tap_edge"."flip_map", "tap_edge"."from_entity_id", "tap_edge"."to_entity_id", "tap_edge"."edge_type", "tap_edge"."properties", <entity-spine-columns>
+SELECT "tap_edge"."id", "tap_edge"."entity_id", "tap_edge"."flip_map", "tap_edge"."spine_deleted_at", "tap_edge"."spine_dimensions", "tap_edge"."from_entity_id", "tap_edge"."to_entity_id", "tap_edge"."edge_type", "tap_edge"."properties", <entity-spine-columns>
 FROM "tap_edge"
 INNER JOIN "tap_entity" ON ("tap_edge"."entity_id" = "tap_entity"."id")
 INNER JOIN "tap_entity" T3 ON ("tap_edge"."from_entity_id" = T3."id")
@@ -25,13 +25,13 @@ WHERE ("tap_entity"."deleted_at" IS NULL AND T3."deleted_at" IS NULL AND T4."del
 ORDER BY "tap_entity"."created_at" DESC
 -- params: [UUID('019e4b02-f37b-72df-a3e5-bb00cf03bb0e'), UUID('019e4b02-f37b-72df-a3e5-bb0135c1d515'), UUID('019e4b02-f37b-72df-a3e5-bb02a19297a0')]
 -- statement 4 · stage: single-hop
-SELECT "grid_fixtures__node"."id", "grid_fixtures__node"."entity_id", "grid_fixtures__node"."batch_id", "grid_fixtures__node"."flip_map", "grid_fixtures__node"."name", "grid_fixtures__node"."description", "grid_fixtures__node"."kind", "grid_fixtures__node"."severity_score", "grid_fixtures__node"."is_open", "grid_fixtures__node"."observed_at", "grid_fixtures__node"."tags"
+SELECT "grid_fixtures__node"."id", "grid_fixtures__node"."entity_id", "grid_fixtures__node"."flip_map", "grid_fixtures__node"."spine_deleted_at", "grid_fixtures__node"."spine_dimensions", "grid_fixtures__node"."name", "grid_fixtures__node"."description", "grid_fixtures__node"."kind", "grid_fixtures__node"."severity_score", "grid_fixtures__node"."is_open", "grid_fixtures__node"."observed_at", "grid_fixtures__node"."tags"
 FROM "grid_fixtures__node"
 INNER JOIN "tap_entity" ON ("grid_fixtures__node"."entity_id" = "tap_entity"."id")
 WHERE ("tap_entity"."deleted_at" IS NULL AND "grid_fixtures__node"."entity_id" IN (%s, %s, %s))
 -- params: [UUID('019e4b02-f37b-72df-a3e5-bafc00e2b0af'), UUID('019e4b02-f37b-72df-a3e5-bafb10535646'), UUID('019e4b02-f37b-72df-a3e5-bafa7b3865a9')]
 -- statement 5 · stage: single-hop
-SELECT "grid_fixtures__hub"."id", "grid_fixtures__hub"."entity_id", "grid_fixtures__hub"."batch_id", "grid_fixtures__hub"."flip_map", "grid_fixtures__hub"."name", "grid_fixtures__hub"."description", "grid_fixtures__hub"."kind", "grid_fixtures__hub"."severity_score", "grid_fixtures__hub"."is_open", "grid_fixtures__hub"."observed_at", "grid_fixtures__hub"."tags"
+SELECT "grid_fixtures__hub"."id", "grid_fixtures__hub"."entity_id", "grid_fixtures__hub"."flip_map", "grid_fixtures__hub"."spine_deleted_at", "grid_fixtures__hub"."spine_dimensions", "grid_fixtures__hub"."name", "grid_fixtures__hub"."description", "grid_fixtures__hub"."kind", "grid_fixtures__hub"."severity_score", "grid_fixtures__hub"."is_open", "grid_fixtures__hub"."observed_at", "grid_fixtures__hub"."tags"
 FROM "grid_fixtures__hub"
 INNER JOIN "tap_entity" ON ("grid_fixtures__hub"."entity_id" = "tap_entity"."id")
 WHERE ("tap_entity"."deleted_at" IS NULL AND "grid_fixtures__hub"."entity_id" IN (%s))

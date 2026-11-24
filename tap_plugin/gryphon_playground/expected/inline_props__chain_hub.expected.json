@@ -20,7 +20,6 @@
         "tags": {
           "zone": "core"
         },
-        "batch_id": "019e4b02-f37b-72df-a3e5-baf80bb43b28",
         "flip_map": {
           "kind": "019e4b02-f37b-72df-a3e5-baf80bb43b28",
           "name": "019e4b02-f37b-72df-a3e5-baf80bb43b28",
@@ -52,7 +51,6 @@
         "tags": {
           "zone": "core"
         },
-        "batch_id": "019e4b02-f37b-72df-a3e5-baf80bb43b28",
         "flip_map": {
           "kind": "019e4b02-f37b-72df-a3e5-baf80bb43b28",
           "name": "019e4b02-f37b-72df-a3e5-baf80bb43b28",
@@ -82,7 +80,6 @@
         "is_open": false,
         "observed_at": null,
         "tags": {},
-        "batch_id": "019e4b02-f37b-72df-a3e5-baf80bb43b28",
         "flip_map": {
           "kind": "019e4b02-f37b-72df-a3e5-baf80bb43b28",
           "name": "019e4b02-f37b-72df-a3e5-baf80bb43b28",
@@ -112,7 +109,6 @@
         "is_open": true,
         "observed_at": null,
         "tags": {},
-        "batch_id": "019e4b02-f37b-72df-a3e5-baf80bb43b28",
         "flip_map": {
           "kind": "019e4b02-f37b-72df-a3e5-baf80bb43b28",
           "name": "019e4b02-f37b-72df-a3e5-baf80bb43b28",
@@ -143,7 +139,6 @@
         "edge_type": "PG_LINKS__grid_fixtures",
         "properties": {},
         "description": null,
-        "batch_id": "019e4b02-f37b-72df-a3e5-baf80bb43b28",
         "flip_map": {
           "properties": "019e4b02-f37b-72df-a3e5-baf80bb43b28"
         }
@@ -166,7 +161,6 @@
         "edge_type": "PG_LINKS__grid_fixtures",
         "properties": {},
         "description": null,
-        "batch_id": "019e4b02-f37b-72df-a3e5-baf80bb43b28",
         "flip_map": {
           "properties": "019e4b02-f37b-72df-a3e5-baf80bb43b28"
         }
@@ -189,7 +183,6 @@
         "edge_type": "PG_LINKS__grid_fixtures",
         "properties": {},
         "description": null,
-        "batch_id": "019e4b02-f37b-72df-a3e5-baf80bb43b28",
         "flip_map": {
           "properties": "019e4b02-f37b-72df-a3e5-baf80bb43b28"
         }

@@ -21,7 +21,6 @@
           "team": "infra",
           "priority": "high"
         },
-        "batch_id": "019e4e07-9975-7501-8d81-0fdad0d5ee22",
         "flip_map": {
           "kind": "019e4e07-9975-7501-8d81-0fdad0d5ee22",
           "name": "019e4e07-9975-7501-8d81-0fdad0d5ee22",
@@ -54,7 +53,6 @@
           "team": "data",
           "priority": "high"
         },
-        "batch_id": "019e4e07-9975-7501-8d81-0fdad0d5ee22",
         "flip_map": {
           "kind": "019e4e07-9975-7501-8d81-0fdad0d5ee22",
           "name": "019e4e07-9975-7501-8d81-0fdad0d5ee22",
