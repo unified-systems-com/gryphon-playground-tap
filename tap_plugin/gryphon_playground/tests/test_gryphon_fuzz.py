@@ -28,6 +28,8 @@ import os
 import pytest
 from tap_plugin.gryphon_playground.gridkin import fuzz
 
+from tap_grid.grift.upgrade import build_header
+
 
 def _env_int(name: str, default: int) -> int:
     raw = os.environ.get(name, "").strip()
@@ -89,3 +91,15 @@ def test_generated_duplicate_maps_are_refused(seed: int) -> None:
     for query in queries:
         with pytest.raises(GryphonParseError, match="Duplicate inline property key"):
             parse_gryphon(query)
+
+
+@pytest.mark.django_db
+def test_seed_document_writes_the_grids_format_1_header() -> None:
+    """The generator writes no header (it runs with no database); seeding stamps core's format "1" one."""
+    case = fuzz.build_cases(_SEED, 1, 0)[0]
+    assert case.document["metadata"] == {}
+    fuzz.seed_document(case.document)
+    header = case.document["metadata"]
+    assert header["grift_version"] == "1"
+    assert header == build_header(case.document)
+    assert {"batch", "grid_fixtures__node"} <= set(header["type_versions"])

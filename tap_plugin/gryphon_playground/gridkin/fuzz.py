@@ -57,6 +57,7 @@ from tap_plugin.gryphon_playground.gridkin.runner import _oracle_agrees
 
 from tap_grid.exceptions import SearchExecutionError
 from tap_grid.grift import grift_import
+from tap_grid.grift.upgrade import build_header
 from tap_grid.gryphon import explain_gryphon_raw
 from tap_grid.gryphon.parser import parse_gryphon
 
@@ -197,7 +198,10 @@ def _gen_graph(rng: random.Random) -> tuple[dict[str, Any], list[dict[str, Any]]
         },
     }
     document = {
-        "metadata": {"grift_version": "0"},
+        # Stamped by `seed_document` with the grid's format "1" header: the
+        # versions are the database's, and cases are generated at collection
+        # time, before any database exists.
+        "metadata": {},
         "_reserved": {},
         "batches": [
             {
@@ -715,7 +719,13 @@ def seed_document(document: dict[str, Any]) -> None:
     fail-loud error discipline (`result.success` alone can miss a partially
     rejected import — a bad fixture must not fake-green). No soft-delete
     directives: the fuzzer never tombstones.
+
+    The header is written here, not by the generator: `build_header` reads the
+    spine and type versions from the database, and cases are built at pytest
+    collection time with no database. It is set on `document` in place, so a
+    divergence report prints the document exactly as it was imported.
     """
+    document["metadata"] = build_header(document)
     result = grift_import(document, dangling_edge_mode="strict")  # TAP-AUTHZ-COV: pytest-only fuzz seed
     if not result.success or result.errors:
         messages = [issue.message for issue in result.errors]
