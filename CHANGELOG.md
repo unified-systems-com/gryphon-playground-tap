@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.6.7](https://github.com/unified-systems-com/gryphon-playground-tap/compare/v0.6.6...v0.6.7) (2026-11-25)
+
+
+### Bug Fixes
+
+* **boot:** ci record's grid_fixtures commit matches v0.3.6 ([dbeea62](https://github.com/unified-systems-com/gryphon-playground-tap/commit/dbeea6220b4e6cc328cc977722b1086ff760a2af))
+* **boot:** pin grid_fixtures v0.3.6 (GRIFT format "1") in all three records ([afdc32c](https://github.com/unified-systems-com/gryphon-playground-tap/commit/afdc32ca61eaa8dc20ce7f7ed7f697836b044379))
+* **boot:** pin grid_fixtures v0.3.6 (GRIFT format "1") in all three records ([91371ca](https://github.com/unified-systems-com/gryphon-playground-tap/commit/91371cac3327af403cd0ea3e68635503858f27fd))
+
 ## [0.6.6](https://github.com/unified-systems-com/gryphon-playground-tap/compare/v0.6.5...v0.6.6) (2026-11-25)
 
 
