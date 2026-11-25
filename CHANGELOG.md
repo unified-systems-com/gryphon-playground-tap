@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.6](https://github.com/unified-systems-com/gryphon-playground-tap/compare/v0.6.5...v0.6.6) (2026-11-25)
+
+
+### Bug Fixes
+
+* **grift:** seed fuzz graphs with the format "1" header from build_header ([666a7b8](https://github.com/unified-systems-com/gryphon-playground-tap/commit/666a7b8aeb9325cffadb2b6fa62a7c493f409ab9))
+* **grift:** seed fuzz graphs with the format "1" header from build_header ([c71c7e2](https://github.com/unified-systems-com/gryphon-playground-tap/commit/c71c7e23f2d5226f56f12d43787314d45f1eae4c))
+
 ## [0.6.5](https://github.com/unified-systems-com/gryphon-playground-tap/compare/v0.6.4...v0.6.5) (2026-11-24)
 
 
